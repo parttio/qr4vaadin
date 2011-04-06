@@ -56,29 +56,30 @@ public class VQRCode extends SimplePanel implements Paintable {
 		// This method call of the Paintable interface sets the component
 		// style name in DOM tree
 		setStyleName(CLASSNAME);
-		setWidth("100px");
-		setHeight("100px");
 		
 		qrcode = new Image();
+		qrcode.setStyleName(CLASSNAME+"-img");
 		qrcode.setAltText("qrcode");
-		qrcode.setWidth("100%");
-		qrcode.setHeight("100%");
 		setWidget(qrcode);
 	}
 	
-	private int pixelWidth = -1;
+	private int pixelWidth = 100;
 	@Override
 	public void setWidth(String width) {
 		super.setWidth(width);
+		qrcode.setWidth(width);
+		qrcode.setHeight(pixelHeight+"px");
 		if(width.contains("px")){
 			pixelWidth = Integer.parseInt(width.replaceAll("px", ""));
 		}
 	}
 	
-	private int pixelHeight = -1;
+	private int pixelHeight = 100;
 	@Override
 	public void setHeight(String height) {
 		super.setHeight(height);
+		qrcode.setHeight(height);
+		qrcode.setWidth(pixelWidth+"px");
 		if(height.contains("px")){
 			pixelHeight = Integer.parseInt(height.replaceAll("px", ""));
 		}
@@ -108,6 +109,7 @@ public class VQRCode extends SimplePanel implements Paintable {
 			initDone = true;
 			client.updateVariable(paintableId, "pixelWidth", pixelWidth, false);
 			client.updateVariable(paintableId, "pixelHeight", pixelHeight, true);
+			client.updateVariable(paintableId, "load", true, true);
 		}
 		
 		if(uidl.hasAttribute("qrcode")){

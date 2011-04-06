@@ -39,11 +39,9 @@ public class QRCodeDemo extends Application {
 				code.setValue(event.getProperty().getValue());
 			}
 		});
+		
+		text.setValue("The quick brown fox jumps over the lazy dog");
 		mainWindow.addComponent(text);
-		
-		code.setWidth("300px");
-		code.setHeight("300px");
-		
 		mainWindow.addComponent(code);
 		
 		setMainWindow(mainWindow);

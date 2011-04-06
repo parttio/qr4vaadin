@@ -16,13 +16,15 @@
 
 package fi.jasoft.qrcode.zxing;
 
+import java.io.Serializable;
+
 /**
  * <p>See ISO 18004:2006, 6.5.1. This enum encapsulates the four error correction levels
  * defined by the QR code standard.</p>
  *
  * @author Sean Owen
  */
-public final class ErrorCorrectionLevel {
+public final class ErrorCorrectionLevel implements Serializable{
 
   // No, we can't use an enum here. J2ME doesn't support it.
 

@@ -20,7 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -37,8 +39,8 @@ import fi.jasoft.qrcode.zxing.WriterException;
 import fi.jasoft.qrcode.zxing.ZXingQRCode;
 
 /**
- * A component for encoding values into QR coded images and embedding
- * them into Vaadin applications.
+ * A component for encoding values into QR coded images and embedding them into
+ * Vaadin applications.
  * 
  * @author John Ahlroos (www.jasoft.fi)
  */
@@ -50,6 +52,8 @@ public class QRCode extends AbstractField {
 
 	private int pixelWidth = 100;
 	private int pixelHeight = 100;
+	private boolean loadImage = false;
+	private boolean initDone = false;
 
 	protected ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
 
@@ -57,8 +61,9 @@ public class QRCode extends AbstractField {
 	 * Constructs an empty <code>QRCode</code> with no caption.
 	 */
 	public QRCode() {
-		setValue("");
+		setValue("", false);
 	}
+	
 
 	/**
 	 * Constructs an empty <code>QRCode</code> with given caption.
@@ -113,6 +118,13 @@ public class QRCode extends AbstractField {
 		setCaption(caption);
 	}
 
+	@Override
+	protected void setValue(Object newValue, boolean repaintIsNotNeeded)
+			throws ReadOnlyException, ConversionException {
+		loadImage = !repaintIsNotNeeded;
+		super.setValue(newValue, repaintIsNotNeeded);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -122,16 +134,70 @@ public class QRCode extends AbstractField {
 		if (variables.containsKey("pixelWidth")) {
 			pixelWidth = Integer.parseInt(variables.get("pixelWidth")
 					.toString());
-			if(pixelWidth == -1){
+			if (pixelWidth == -1) {
 				pixelWidth = 100;
 			}
+			initDone = true;
 		}
-		if(variables.containsKey("pixelHeight")) {
-			pixelHeight = Integer.parseInt(variables.get("pixelHeight").toString());
-			if(pixelHeight == -1){
+		if (variables.containsKey("pixelHeight")) {
+			pixelHeight = Integer.parseInt(variables.get("pixelHeight")
+					.toString());
+			if (pixelHeight == -1) {
 				pixelHeight = 100;
 			}
+			initDone = true;
 		}
+		if (variables.containsKey("load")) {
+			loadImage = true;
+			requestRepaint();
+		}
+	}
+	
+	private void paintImage(PaintTarget target, String value) throws PaintException {
+		
+		try {
+			Encoder.encode(value, ecl, qrcode);
+		} catch (WriterException e1) {
+			e1.printStackTrace();
+			return;
+		}
+		
+		if(pixelWidth <= 0){
+			pixelWidth = 100;
+		}
+		
+		if(pixelHeight <= 0){
+			pixelHeight = 100;
+		}
+
+		/*
+		 * Generate a unique filename for this qrcode relative to the value of
+		 * the qrcode and the width
+		 */
+		String hash = value+pixelWidth+"x"+pixelHeight;
+		String filename = "qcode-" + UUID.nameUUIDFromBytes(hash.getBytes()).toString() + ".png";
+
+		// Create a image resource
+		StreamResource resource = new StreamResource(
+				new StreamResource.StreamSource() {
+					public InputStream getStream() {
+						BufferedImage image = toBufferedImage(renderResult(
+								qrcode, pixelWidth, pixelHeight));
+						ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream();
+
+						try {
+							ImageIO.write(image, "png", imagebuffer);
+							return new ByteArrayInputStream(imagebuffer
+									.toByteArray());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						return null;
+					}
+				}, filename, getApplication());
+
+		target.addAttribute("qrcode", resource);
+	
 	}
 
 	/**
@@ -141,55 +207,10 @@ public class QRCode extends AbstractField {
 	public void paintContent(PaintTarget target) throws PaintException {
 		super.paintContent(target);
 
-		String value = getValue() == null ? "" : getValue().toString();
-
-		if (pixelWidth > 0 || pixelWidth == -1) {
-			/*
-			 * Generate a unique filename for this qrcode relative to the value
-			 * of the qrcode and the width
-			 */
-			int hash = (value + pixelWidth).hashCode();
-			String filename = "qcode-" + Integer.toHexString(hash) + ".png";
-
-			// Create a image resource
-			StreamResource resource = new StreamResource(
-					new StreamResource.StreamSource() {
-						public InputStream getStream() {
-							BufferedImage image = toBufferedImage(renderResult(qrcode, pixelWidth, pixelWidth));
-							ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream();
-
-							try {
-								ImageIO.write(image, "png", imagebuffer);
-								return new ByteArrayInputStream(imagebuffer
-										.toByteArray());
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							return null;
-						}
-					}, filename, getApplication());
-
-			target.addAttribute("qrcode", resource);
-		}
-	}
-
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void setInternalValue(Object newValue) {
-		super.setInternalValue(newValue);
-
-		String value = newValue == null ? "" : newValue.toString();
-
-		try {
-			Encoder.chooseMode(value);
-			Encoder.encode(value, ecl, qrcode);
-			requestRepaint();
-		} catch (WriterException e) {
-			throw new IllegalArgumentException(
-					"Could not encode the string into QRCode");
+		if(loadImage && initDone){
+			String value = getValue() == null ? "" : getValue().toString();
+			paintImage(target, value);
+			loadImage = false;
 		}
 	}
 
@@ -204,10 +225,12 @@ public class QRCode extends AbstractField {
 	/**
 	 * Copy&Paste from com.google.zxing.qrcode.QRCodeWriter.java
 	 * 
-	 * http://zxing.googlecode.com/svn-history/r800/trunk/core/src/com/google/zxing/qrcode/QRCodeWriter.java
+	 * http://zxing.googlecode.com/svn-history/r800/trunk/core/src/com/google/
+	 * zxing/qrcode/QRCodeWriter.java
 	 * 
 	 */
 	private static final int QUIET_ZONE_SIZE = 4;
+
 	private static ByteMatrix renderResult(ZXingQRCode code, int width,
 			int height) {
 		ByteMatrix input = code.getMatrix();
@@ -222,7 +245,7 @@ public class QRCode extends AbstractField {
 		int leftPadding = (outputWidth - (inputWidth * multiple)) / 2;
 		int topPadding = (outputHeight - (inputHeight * multiple)) / 2;
 
-		ByteMatrix output = new ByteMatrix(outputHeight, outputWidth);
+		ByteMatrix output = new ByteMatrix(outputWidth, outputHeight);
 		byte[][] outputArray = output.getArray();
 		byte[] row = new byte[outputWidth];
 
@@ -275,7 +298,8 @@ public class QRCode extends AbstractField {
 	/**
 	 * Copy & Paste from com.google.zxing.qrcode.QRCodeWriter.java
 	 * 
-	 * http://zxing.googlecode.com/svn-history/r800/trunk/core/src/com/google/zxing/qrcode/QRCodeWriter.java
+	 * http://zxing.googlecode.com/svn-history/r800/trunk/core/src/com/google/
+	 * zxing/qrcode/QRCodeWriter.java
 	 * 
 	 */
 	private static void setRowColor(byte[] row, byte value) {
@@ -283,14 +307,16 @@ public class QRCode extends AbstractField {
 			row[x] = value;
 		}
 	}
-	
+
 	/**
 	 * Copy & Paste from com.google.zxing.client.j2se.MatrixToImageWriter.java
 	 * 
-	 * http://zxing.googlecode.com/svn-history/r1028/trunk/javase/src/com/google/zxing/client/j2se/MatrixToImageWriter.java
+	 * http://zxing.googlecode.com/svn-history/r1028/trunk/javase/src/com/google
+	 * /zxing/client/j2se/MatrixToImageWriter.java
 	 */
 	private static final int BLACK = 0xFF000000;
 	private static final int WHITE = 0xFFFFFFFF;
+
 	private static BufferedImage toBufferedImage(ByteMatrix matrix) {
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
