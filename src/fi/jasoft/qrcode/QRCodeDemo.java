@@ -16,35 +16,45 @@
 package fi.jasoft.qrcode;
 
 import com.vaadin.Application;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.ui.*;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class QRCodeDemo extends Application {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	QRCode code = new QRCode();
-	
-	@Override
-	public void init() {
-		Window mainWindow = new Window("Demo");
-		((VerticalLayout)mainWindow.getContent()).setSpacing(true);
-		
-		TextField text = new TextField("Type something in this field and press <ENTER> to generate a new QRCode image below");
-		text.setWidth("500px");
-		text.setImmediate(true);
-		text.addListener(new Property.ValueChangeListener() {
-			public void valueChange(ValueChangeEvent event) {
-				code.setValue(event.getProperty().getValue());
-			}
-		});
-		
-		text.setValue("The quick brown fox jumps over the lazy dog");
-		mainWindow.addComponent(text);
-		mainWindow.addComponent(code);
-		
-		setMainWindow(mainWindow);
-	}
+    QRCode code = new QRCode();
+
+    @Override
+    public void init() {
+        Window mainWindow = new Window("Demo");
+        ((VerticalLayout) mainWindow.getContent()).setSpacing(true);
+
+        HorizontalLayout layout = new HorizontalLayout();
+        mainWindow.addComponent(layout);
+
+        final TextField text = new TextField();
+        text.setWidth("500px");
+        text.setImmediate(true);
+        text.setValue("The quick brown fox jumps over the lazy dog");
+        layout.addComponent(text);
+
+        code.setValue("The quick brown fox jumps over the lazy dog");
+
+        Button gen = new Button("Generate!", new Button.ClickListener() {
+            public void buttonClick(ClickEvent event) {
+                code.setValue(text.getValue());
+            }
+        });
+        layout.addComponent(gen);
+
+        mainWindow.addComponent(code);
+
+        setMainWindow(mainWindow);
+    }
 
 }
