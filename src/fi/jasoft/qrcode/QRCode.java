@@ -15,12 +15,12 @@
  */
 package fi.jasoft.qrcode;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,6 +54,9 @@ public class QRCode extends AbstractField {
 	private int pixelHeight = 100;
 	private boolean loadImage = false;
 	private boolean initDone = false;
+	
+	private Color fgColor = Color.BLACK;
+	private Color bgColor = Color.WHITE;
 
 	protected ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
 
@@ -118,6 +121,9 @@ public class QRCode extends AbstractField {
 		setCaption(caption);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void setValue(Object newValue, boolean repaintIsNotNeeded)
 			throws ReadOnlyException, ConversionException {
@@ -155,6 +161,7 @@ public class QRCode extends AbstractField {
 	
 	private void paintImage(PaintTarget target, String value) throws PaintException {
 		
+		// Try to encode
 		try {
 			Encoder.encode(value, ecl, qrcode);
 		} catch (WriterException e1) {
@@ -162,10 +169,12 @@ public class QRCode extends AbstractField {
 			return;
 		}
 		
+		// Ensure pixel width
 		if(pixelWidth <= 0){
 			pixelWidth = 100;
 		}
 		
+		// Ensure pixel height
 		if(pixelHeight <= 0){
 			pixelHeight = 100;
 		}
@@ -174,15 +183,15 @@ public class QRCode extends AbstractField {
 		 * Generate a unique filename for this qrcode relative to the value of
 		 * the qrcode and the width
 		 */
-		String hash = value+pixelWidth+"x"+pixelHeight;
-		String filename = "qcode-" + UUID.nameUUIDFromBytes(hash.getBytes()).toString() + ".png";
+		String hash = value+pixelWidth+"x"+pixelHeight+fgColor.getRGB()+bgColor.getRGB();
+		String filename = "qrcode-" + UUID.nameUUIDFromBytes(hash.getBytes()).toString() + ".png";
 
 		// Create a image resource
 		StreamResource resource = new StreamResource(
 				new StreamResource.StreamSource() {
 					public InputStream getStream() {
-						BufferedImage image = toBufferedImage(renderResult(
-								qrcode, pixelWidth, pixelHeight));
+						ByteMatrix matrix = renderResult(qrcode, pixelWidth, pixelHeight);
+						BufferedImage image = toBufferedImage(matrix, fgColor.getRGB(), bgColor.getRGB());
 						ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream();
 
 						try {
@@ -197,7 +206,6 @@ public class QRCode extends AbstractField {
 				}, filename, getApplication());
 
 		target.addAttribute("qrcode", resource);
-	
 	}
 
 	/**
@@ -314,19 +322,60 @@ public class QRCode extends AbstractField {
 	 * http://zxing.googlecode.com/svn-history/r1028/trunk/javase/src/com/google
 	 * /zxing/client/j2se/MatrixToImageWriter.java
 	 */
-	private static final int BLACK = 0xFF000000;
-	private static final int WHITE = 0xFFFFFFFF;
-
-	private static BufferedImage toBufferedImage(ByteMatrix matrix) {
+	private static BufferedImage toBufferedImage(ByteMatrix matrix, int fgColor, int bgColor) {
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
 		BufferedImage image = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				image.setRGB(x, y, matrix.get(x, y) == 0 ? BLACK : WHITE);
+				image.setRGB(x, y, matrix.get(x, y) == 0 ? fgColor : bgColor);
 			}
 		}
 		return image;
+	}
+	
+	/**
+	 * Set the color which will be the primary color of the QR Code. By
+	 * default this is black. This color should be darker than the secondary
+	 * color.
+	 * 
+	 * @param color
+	 * 		The color to use as the primary color
+	 */
+	public void setPrimaryColor(Color color){
+		if(color == null){
+			fgColor = Color.BLACK;
+		} else {
+			fgColor = color;
+		}
+		loadImage = true;
+		requestRepaint();
+	}
+	
+	/**
+	 * Get the color which will be the primary color of the QR Code. By
+	 * default this is black. 
+	 */
+	public Color getPrimaryColor(){
+		return fgColor;
+	}
+	
+	/**
+	 * Set the color which wll be the secondary, or background color, of the
+	 * QR Code. By default this is white. THis color should be lighter than the
+	 * primary color.
+	 * 
+	 * @param color
+	 * 		The color to use as the secondary color
+	 */
+	public void setSecondaryColor(Color color){
+		if(color == null){
+			bgColor = Color.WHITE;
+		} else {
+			bgColor = color;
+		}
+		loadImage = true;
+		requestRepaint();
 	}
 }
