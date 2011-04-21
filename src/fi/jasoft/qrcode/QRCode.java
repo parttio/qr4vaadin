@@ -322,7 +322,7 @@ public class QRCode extends AbstractField {
 	 * http://zxing.googlecode.com/svn-history/r1028/trunk/javase/src/com/google
 	 * /zxing/client/j2se/MatrixToImageWriter.java
 	 */
-	private static BufferedImage toBufferedImage(ByteMatrix matrix, int fgColor, int bgColor) {
+	protected static BufferedImage toBufferedImage(ByteMatrix matrix, int fgColor, int bgColor) {
 		int width = matrix.getWidth();
 		int height = matrix.getHeight();
 		BufferedImage image = new BufferedImage(width, height,
