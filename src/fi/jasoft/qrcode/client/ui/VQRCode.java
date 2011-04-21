@@ -113,7 +113,7 @@ public class VQRCode extends SimplePanel implements Paintable {
 		}
 		
 		if(uidl.hasAttribute("qrcode")){
-			String resUrl = uidl.getStringAttribute("qrcode");
+			String resUrl = client.translateVaadinUri(uidl.getStringAttribute("qrcode"));
 			qrcode.setUrl(resUrl);
 		}
 	}
