@@ -1,5 +1,7 @@
 /*
  * Copyright 2007 ZXing authors
+ * 
+ * Modified by John Ahlroos 2011
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +19,13 @@
 package fi.jasoft.qrcode.zxing;
 
 /**
- * <p>See ISO 18004:2006, 6.4.1, Tables 2 and 3. This enum encapsulates the various modes in which
- * data can be encoded to bits in the QR code standard.</p>
- *
+ * <p>
+ * See ISO 18004:2006, 6.4.1, Tables 2 and 3. This enum encapsulates the various
+ * modes in which data can be encoded to bits in the QR code standard.
+ * </p>
+ * 
  * @author Sean Owen
+ * @author John Ahlroos
  */
 public final class Mode {
 
@@ -41,7 +46,13 @@ public final class Mode {
   private final String name;
 
   private Mode(int[] characterCountBitsForVersions, int bits, String name) {
-    this.characterCountBitsForVersions = characterCountBitsForVersions;
+        if (characterCountBitsForVersions != null) {
+            this.characterCountBitsForVersions = (int[]) characterCountBitsForVersions
+                    .clone();
+        } else {
+            this.characterCountBitsForVersions = null;
+        }
+
     this.bits = bits;
     this.name = name;
   }

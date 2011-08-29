@@ -1,5 +1,7 @@
 /*
  * Copyright 2008 ZXing authors
+ * 
+ * Modified by John Ahlroos 2011
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +18,17 @@
 
 package fi.jasoft.qrcode.zxing;
 
+/**
+ * @author John Ahlroos
+ */
 final class BlockPair {
 
   private final byte[] dataBytes;
   private final byte[] errorCorrectionBytes;
 
   BlockPair(byte[] data, byte[] errorCorrection) {
-    dataBytes = data;
-    errorCorrectionBytes = errorCorrection;
+        dataBytes = (byte[]) data.clone();
+        errorCorrectionBytes = (byte[]) errorCorrection.clone();
   }
 
   public byte[] getDataBytes() {

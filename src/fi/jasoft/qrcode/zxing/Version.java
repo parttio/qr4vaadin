@@ -1,6 +1,8 @@
 /*
  * Copyright 2007 ZXing authors
  *
+ * Modified by John Ahlroos 2011
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,13 +18,12 @@
 
 package fi.jasoft.qrcode.zxing;
 
-import fi.jasoft.qrcode.zxing.FormatException;
-import fi.jasoft.qrcode.zxing.BitMatrix;
 
 /**
  * See ISO 18004:2006 Annex D
- *
+ * 
  * @author Sean Owen
+ * @author John Ahlroos
  */
 public final class Version {
 
@@ -54,7 +55,7 @@ public final class Version {
                   ECBlocks ecBlocks3,
                   ECBlocks ecBlocks4) {
     this.versionNumber = versionNumber;
-    this.alignmentPatternCenters = alignmentPatternCenters;
+    this.alignmentPatternCenters = (int[]) alignmentPatternCenters.clone();
     this.ecBlocks = new ECBlocks[]{ecBlocks1, ecBlocks2, ecBlocks3, ecBlocks4};
     int total = 0;
     int ecCodewords = ecBlocks1.getECCodewordsPerBlock();

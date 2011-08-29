@@ -1,6 +1,8 @@
 /*
  * Copyright 2007 ZXing authors
  *
+ * Modified by John Ahlroos 2011
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -52,7 +54,7 @@ final class GF256Poly {
         firstNonZero++;
       }
       if (firstNonZero == coefficientsLength) {
-        this.coefficients = field.getZero().coefficients;
+        this.coefficients = (int[]) field.getZero().coefficients.clone();
       } else {
         this.coefficients = new int[coefficientsLength - firstNonZero];
         System.arraycopy(coefficients,
@@ -62,7 +64,7 @@ final class GF256Poly {
             this.coefficients.length);
       }
     } else {
-      this.coefficients = coefficients;
+      this.coefficients = (int[]) coefficients.clone();
     }
   }
 
