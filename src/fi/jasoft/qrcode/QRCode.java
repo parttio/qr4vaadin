@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -50,6 +52,9 @@ public class QRCode extends AbstractField {
 
     private final ZXingQRCode qrcode = new ZXingQRCode();
 
+    private static final Logger logger = Logger.getLogger(QRCode.class
+            .getName());
+
     private int pixelWidth = 100;
     private int pixelHeight = 100;
     private boolean loadImage = false;
@@ -58,13 +63,14 @@ public class QRCode extends AbstractField {
     private Color fgColor = Color.BLACK;
     private Color bgColor = Color.WHITE;
 
-    protected ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
+    private ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
 
     /**
      * Constructs an empty <code>QRCode</code> with no caption.
      */
     public QRCode() {
-        setValue("", false);
+        setInternalValue("");
+        loadImage = true;
     }
 
     /**
@@ -86,6 +92,7 @@ public class QRCode extends AbstractField {
      *            the Property to be edited with this editor.
      */
     public QRCode(Property dataSource) {
+        this();
         setPropertyDataSource(dataSource);
     }
 
@@ -116,7 +123,8 @@ public class QRCode extends AbstractField {
      *            the initial text content of the editor.
      */
     public QRCode(String caption, String value) {
-        setValue(value);
+        setInternalValue(value);
+        loadImage = true;
         setCaption(caption);
     }
 
@@ -165,7 +173,8 @@ public class QRCode extends AbstractField {
         try {
             Encoder.encode(value, ecl, qrcode);
         } catch (WriterException e1) {
-            e1.printStackTrace();
+            logger.log(Level.SEVERE, "Could not encode QR Code for '" + value
+                    + "'", e1);
             return;
         }
 
@@ -203,7 +212,8 @@ public class QRCode extends AbstractField {
                             return new ByteArrayInputStream(imagebuffer
                                     .toByteArray());
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            logger.log(Level.SEVERE,
+                                    "Could not create QRCode image file", e);
                         }
                         return null;
                     }
@@ -381,5 +391,25 @@ public class QRCode extends AbstractField {
         }
         loadImage = true;
         requestRepaint();
+    }
+
+    /**
+     * Returns the error correction level. Default is
+     * {@link ErrorCorrectionLevel#L}
+     * 
+     * @return
+     */
+    protected ErrorCorrectionLevel getEcl() {
+        return ecl;
+    }
+
+    /**
+     * Set the error correction level. Default is {@link ErrorCorrectionLevel#L}
+     * 
+     * @param ecl
+     *            The error correction level to use.
+     */
+    protected void setEcl(ErrorCorrectionLevel ecl) {
+        this.ecl = ecl;
     }
 }

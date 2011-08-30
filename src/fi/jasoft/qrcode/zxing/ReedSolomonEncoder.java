@@ -1,6 +1,8 @@
 /*
  * Copyright 2008 ZXing authors
  *
+ * Modified by John Ahlroos
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +18,8 @@
 
 package fi.jasoft.qrcode.zxing;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -25,11 +28,12 @@ import java.util.Vector;
  * 
  * @author Sean Owen
  * @author William Rucklidge
+ * @author John Ahlroos
  */
 public final class ReedSolomonEncoder {
 
     private final GF256 field;
-    private final Vector cachedGenerators;
+    private final List<GF256Poly> cachedGenerators;
 
     public ReedSolomonEncoder(GF256 field) {
         if (!GF256.QR_CODE_FIELD.equals(field)) {
@@ -37,22 +41,22 @@ public final class ReedSolomonEncoder {
                     "Only QR Code is supported at this time");
         }
         this.field = field;
-        this.cachedGenerators = new Vector();
-        cachedGenerators.addElement(new GF256Poly(field, new int[] { 1 }));
+        this.cachedGenerators = new ArrayList<GF256Poly>();
+        cachedGenerators.add(new GF256Poly(field, new int[] { 1 }));
     }
 
     private GF256Poly buildGenerator(int degree) {
         if (degree >= cachedGenerators.size()) {
             GF256Poly lastGenerator = (GF256Poly) cachedGenerators
-                    .elementAt(cachedGenerators.size() - 1);
+                    .get(cachedGenerators.size() - 1);
             for (int d = cachedGenerators.size(); d <= degree; d++) {
                 GF256Poly nextGenerator = lastGenerator.multiply(new GF256Poly(
                         field, new int[] { 1, field.exp(d - 1) }));
-                cachedGenerators.addElement(nextGenerator);
+                cachedGenerators.add(nextGenerator);
                 lastGenerator = nextGenerator;
             }
         }
-        return (GF256Poly) cachedGenerators.elementAt(degree);
+        return (GF256Poly) cachedGenerators.get(degree);
     }
 
     public void encode(int[] toEncode, int ecBytes) {

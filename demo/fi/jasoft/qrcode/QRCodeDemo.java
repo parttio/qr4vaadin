@@ -33,7 +33,9 @@ public class QRCodeDemo extends Application {
 
     private static final long serialVersionUID = 1L;
 
-    QRCode code = new QRCode();
+    private static final String COLOR_ITEM_PROPERTY = "color";
+
+    private final QRCode code = new QRCode();
 
     @Override
     public void init() {
@@ -68,17 +70,23 @@ public class QRCodeDemo extends Application {
         fgColor.setImmediate(true);
         fgColor.setNullSelectionAllowed(false);
         fgColor.setWidth("100px");
-        fgColor.addContainerProperty("color", Color.class, Color.BLACK);
+        fgColor.addContainerProperty(COLOR_ITEM_PROPERTY, Color.class,
+                Color.BLACK);
         fgColor.addItem("Black");
-        fgColor.addItem("Red").getItemProperty("color").setValue(Color.RED);
-        fgColor.addItem("Green").getItemProperty("color").setValue(Color.GREEN);
-        fgColor.addItem("Blue").getItemProperty("color").setValue(Color.BLUE);
-        fgColor.addItem("Yellow").getItemProperty("color").setValue(Color.YELLOW);
+        fgColor.addItem("Red").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(Color.RED);
+        fgColor.addItem("Green").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(Color.GREEN);
+        fgColor.addItem("Blue").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(Color.BLUE);
+        fgColor.addItem("Yellow").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(Color.YELLOW);
         fgColor.select("Black");
         fgColor.addListener(new Property.ValueChangeListener() {
 			public void valueChange(ValueChangeEvent event) {
 				Item item = fgColor.getItem(event.getProperty().getValue());
-				code.setPrimaryColor((Color)item.getItemProperty("color").getValue());
+                code.setPrimaryColor((Color) item.getItemProperty(
+                        COLOR_ITEM_PROPERTY).getValue());
 			}
 		});
         layout2.addComponent(fgColor);
@@ -87,17 +95,23 @@ public class QRCodeDemo extends Application {
         bgColor.setImmediate(true);
         bgColor.setNullSelectionAllowed(false);
         bgColor.setWidth("100px");
-        bgColor.addContainerProperty("color", Color.class, Color.WHITE);
+        bgColor.addContainerProperty(COLOR_ITEM_PROPERTY, Color.class,
+                Color.WHITE);
         bgColor.addItem("White");
-        bgColor.addItem("Red").getItemProperty("color").setValue(new Color(255,0,0,50));
-        bgColor.addItem("Green").getItemProperty("color").setValue(new Color(0,255,0,50));
-        bgColor.addItem("Blue").getItemProperty("color").setValue(new Color(0,0,255,50));
-        bgColor.addItem("Yellow").getItemProperty("color").setValue(new Color(255,255,0,50));
+        bgColor.addItem("Red").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(new Color(255, 0, 0, 50));
+        bgColor.addItem("Green").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(new Color(0, 255, 0, 50));
+        bgColor.addItem("Blue").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(new Color(0, 0, 255, 50));
+        bgColor.addItem("Yellow").getItemProperty(COLOR_ITEM_PROPERTY)
+                .setValue(new Color(255, 255, 0, 50));
         bgColor.select("White");
         bgColor.addListener(new Property.ValueChangeListener() {
 			public void valueChange(ValueChangeEvent event) {
 				Item item = bgColor.getItem(event.getProperty().getValue());
-				code.setSecondaryColor((Color)item.getItemProperty("color").getValue());
+                code.setSecondaryColor((Color) item.getItemProperty(
+                        COLOR_ITEM_PROPERTY).getValue());
 			}
 		});
         layout2.addComponent(bgColor);

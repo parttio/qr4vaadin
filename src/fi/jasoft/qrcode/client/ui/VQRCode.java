@@ -15,19 +15,11 @@
  */
 package fi.jasoft.qrcode.client.ui;
 
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.vaadin.terminal.gwt.client.ApplicationConnection;
 import com.vaadin.terminal.gwt.client.Paintable;
 import com.vaadin.terminal.gwt.client.UIDL;
-import com.vaadin.terminal.gwt.client.VConsole;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.ImageElement;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Client side widget which communicates with the server. Messages from the
@@ -39,10 +31,10 @@ public class VQRCode extends SimplePanel implements Paintable {
     public static final String CLASSNAME = "v-qrcode";
 
     /** The client side widget identifier */
-    protected String paintableId;
+    private String paintableId;
 
     /** Reference to the server connection object. */
-    protected ApplicationConnection client;
+    private ApplicationConnection client;
 
     /** The qr encoded image */
     private Image qrcode;
@@ -121,5 +113,23 @@ public class VQRCode extends SimplePanel implements Paintable {
                     .getStringAttribute("qrcode"));
             qrcode.setUrl(resUrl);
         }
+    }
+
+    /**
+     * Get the components PID
+     * 
+     * @return
+     */
+    protected String getPaintableId() {
+        return paintableId;
+    }
+
+    /**
+     * Get Application connection
+     * 
+     * @return
+     */
+    protected ApplicationConnection getClient() {
+        return client;
     }
 }

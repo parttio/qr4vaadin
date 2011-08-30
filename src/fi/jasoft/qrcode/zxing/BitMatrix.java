@@ -40,12 +40,10 @@ package fi.jasoft.qrcode.zxing;
  */
 public final class BitMatrix {
 
-    // TODO: Just like BitArray, these need to be public so ProGuard can inline
-    // them.
-    public final int width;
-    public final int height;
-    public final int rowSize;
-    public final int[] bits;
+    private final int width;
+    private final int height;
+    private final int rowSize;
+    private final int[] bits;
 
     // A helper to construct a square matrix.
     public BitMatrix(int dimension) {
@@ -168,14 +166,15 @@ public final class BitMatrix {
      *         even when passing your own row
      */
     public BitArray getRow(int y, BitArray row) {
-        if (row == null || row.getSize() < width) {
-            row = new BitArray(width);
+        BitArray ba = row;
+        if (ba == null || ba.getSize() < width) {
+            ba = new BitArray(width);
         }
         int offset = y * rowSize;
         for (int x = 0; x < rowSize; x++) {
-            row.setBulk(x << 5, bits[offset + x]);
+            ba.setBulk(x << 5, bits[offset + x]);
         }
-        return row;
+        return ba;
     }
 
     /**

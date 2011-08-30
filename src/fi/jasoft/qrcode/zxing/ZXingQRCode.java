@@ -1,5 +1,7 @@
 /*
  * Copyright 2008 ZXing authors
+ * 
+ * Modified by John Ahlroos 2011
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +18,11 @@
 
 package fi.jasoft.qrcode.zxing;
 
-import fi.jasoft.qrcode.zxing.ErrorCorrectionLevel;
-import fi.jasoft.qrcode.zxing.Mode;
 
 /**
  * @author satorux@google.com (Satoru Takabayashi) - creator
  * @author dswitkin@google.com (Daniel Switkin) - ported from C++
+ * @author John Ahlroos
  */
 public final class ZXingQRCode {
 
@@ -111,7 +112,7 @@ public final class ZXingQRCode {
         if (!(value == 0 || value == 1)) {
             // this is really like an assert... not sure what better exception
             // to use?
-            throw new RuntimeException("Bad value");
+            throw new IllegalArgumentException("Bad value");
         }
         return value;
     }
@@ -121,19 +122,40 @@ public final class ZXingQRCode {
     // false.
     public boolean isValid() {
         return
-        // First check if all version are not uninitialized.
-        mode != null && ecLevel != null && version != -1 && matrixWidth != -1
-                && maskPattern != -1 && numTotalBytes != -1
-                && numDataBytes != -1 && numECBytes != -1
-                && numRSBlocks != -1
-                &&
-                // Then check them in other ways..
-                isValidMaskPattern(maskPattern)
-                && numTotalBytes == numDataBytes + numECBytes &&
-                // ByteMatrix stuff.
-                matrix != null && matrixWidth == matrix.getWidth() &&
-                // See 7.3.1 of JISX0510:2004 (p.5).
-                matrix.getWidth() == matrix.getHeight(); // Must be square.
+        maskPattern != -1 &&
+        areVariablesSet() &&
+        isValidMaskPattern(maskPattern) && 
+        isTotalBytesValid() &&
+        isMatrixValid() &&
+        isSquare() &&
+        areECAndRSBlocksSet() &&
+        isModeVersionAndECLevelSet(); 
+    }
+    
+    private boolean isSquare(){
+        return matrix.getWidth() == matrix.getHeight();
+    }
+    
+    private boolean isMatrixValid(){
+        return matrix != null && matrixWidth == matrix.getWidth() && matrixWidth != -1;
+    }
+    
+    private boolean isTotalBytesValid(){
+        return numTotalBytes == numDataBytes + numECBytes && 
+                numTotalBytes != -1 &&
+                numDataBytes != -1;
+    }
+
+    private boolean areVariablesSet() {
+        return mode != null && ecLevel != null && version != -1;
+    }
+    
+    private boolean isModeVersionAndECLevelSet() {
+        return mode != null && ecLevel != null && version != -1;
+    }
+    
+    private boolean areECAndRSBlocksSet() {
+        return numECBytes != -1 &&  numRSBlocks != -1;
     }
 
     // Return debug String.

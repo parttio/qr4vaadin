@@ -25,16 +25,8 @@ package fi.jasoft.qrcode.zxing;
  * @author Sean Owen
  */
 public final class BitArray {
-
-    // TODO: I have changed these members to be public so ProGuard can inline
-    // get() and set(). Ideally
-    // they'd be private and we'd use the -allowaccessmodification flag, but
-    // Dalvik rejects the
-    // resulting binary at runtime on Android. If we find a solution to this,
-    // these should be changed
-    // back to private.
-    public int[] bits;
-    public int size;
+    private int[] bits;
+    private int size;
 
     public BitArray() {
         this.size = 0;
@@ -137,13 +129,13 @@ public final class BitArray {
         if (end == start) {
             return true; // empty range matches
         }
-        end--; // will be easier to treat this as the last actually set bit --
-               // inclusive
+
+        int endInt = end - 1;
         int firstInt = start >> 5;
-        int lastInt = end >> 5;
+        int lastInt = endInt >> 5;
         for (int i = firstInt; i <= lastInt; i++) {
             int firstBit = i > firstInt ? 0 : start & 0x1F;
-            int lastBit = i < lastInt ? 31 : end & 0x1F;
+            int lastBit = i < lastInt ? 31 : endInt & 0x1F;
             int mask;
             if (firstBit == 0 && lastBit == 31) {
                 mask = -1;
@@ -222,13 +214,14 @@ public final class BitArray {
      *            how many bytes to write
      */
     public void toBytes(int bitOffset, byte[] array, int offset, int numBytes) {
+        int boffset = bitOffset;
         for (int i = 0; i < numBytes; i++) {
             int theByte = 0;
             for (int j = 0; j < 8; j++) {
-                if (get(bitOffset)) {
+                if (get(boffset)) {
                     theByte |= 1 << (7 - j);
                 }
-                bitOffset++;
+                boffset++;
             }
             array[offset + i] = (byte) theByte;
         }
@@ -247,9 +240,8 @@ public final class BitArray {
      */
     public void reverse() {
         int[] newBits = new int[bits.length];
-        int size = this.size;
-        for (int i = 0; i < size; i++) {
-            if (get(size - i - 1)) {
+        for (int i = 0; i < this.size; i++) {
+            if (get(this.size - i - 1)) {
                 newBits[i >> 5] |= 1 << (i & 0x1F);
             }
         }

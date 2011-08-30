@@ -1,6 +1,8 @@
 /*
  * Copyright 2008 ZXing authors
  *
+ * Modified by John Ahlroos 2011
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,24 +18,15 @@
 
 package fi.jasoft.qrcode.zxing;
 
-import fi.jasoft.qrcode.zxing.EncodeHintType;
-import fi.jasoft.qrcode.zxing.WriterException;
-import fi.jasoft.qrcode.zxing.BitArray;
-import fi.jasoft.qrcode.zxing.CharacterSetECI;
-import fi.jasoft.qrcode.zxing.ECI;
-import fi.jasoft.qrcode.zxing.GF256;
-import fi.jasoft.qrcode.zxing.ReedSolomonEncoder;
-import fi.jasoft.qrcode.zxing.ErrorCorrectionLevel;
-import fi.jasoft.qrcode.zxing.Mode;
-import fi.jasoft.qrcode.zxing.Version;
-
 import java.io.UnsupportedEncodingException;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author satorux@google.com (Satoru Takabayashi) - creator
  * @author dswitkin@google.com (Daniel Switkin) - ported from C++
+ * @author John Ahlroos
  */
 public final class Encoder {
 
@@ -83,7 +76,8 @@ public final class Encoder {
     }
 
     public static void encode(String content, ErrorCorrectionLevel ecLevel,
-            Hashtable hints, ZXingQRCode qrCode) throws WriterException {
+            Map<EncodeHintType, String> hints, ZXingQRCode qrCode)
+            throws WriterException {
 
         String encoding = hints == null ? null : (String) hints
                 .get(EncodeHintType.CHARACTER_SET);
@@ -383,7 +377,7 @@ public final class Encoder {
 
         // Since, we know the number of reedsolmon blocks, we can initialize the
         // vector with the number.
-        Vector blocks = new Vector(numRSBlocks);
+        List<BlockPair> blocks = new ArrayList<BlockPair>(numRSBlocks);
 
         for (int i = 0; i < numRSBlocks; ++i) {
             int[] numDataBytesInBlock = new int[1];
@@ -395,7 +389,7 @@ public final class Encoder {
             byte[] dataBytes = new byte[size];
             bits.toBytes(8 * dataBytesOffset, dataBytes, 0, size);
             byte[] ecBytes = generateECBytes(dataBytes, numEcBytesInBlock[0]);
-            blocks.addElement(new BlockPair(dataBytes, ecBytes));
+            blocks.add(new BlockPair(dataBytes, ecBytes));
 
             maxNumDataBytes = Math.max(maxNumDataBytes, size);
             maxNumEcBytes = Math.max(maxNumEcBytes, ecBytes.length);
@@ -408,7 +402,7 @@ public final class Encoder {
         // First, place data blocks.
         for (int i = 0; i < maxNumDataBytes; ++i) {
             for (int j = 0; j < blocks.size(); ++j) {
-                byte[] dataBytes = ((BlockPair) blocks.elementAt(j))
+                byte[] dataBytes = ((BlockPair) blocks.get(j))
                         .getDataBytes();
                 if (i < dataBytes.length) {
                     result.appendBits(dataBytes[i], 8);
@@ -418,7 +412,7 @@ public final class Encoder {
         // Then, place error correction blocks.
         for (int i = 0; i < maxNumEcBytes; ++i) {
             for (int j = 0; j < blocks.size(); ++j) {
-                byte[] ecBytes = ((BlockPair) blocks.elementAt(j))
+                byte[] ecBytes = ((BlockPair) blocks.get(j))
                         .getErrorCorrectionBytes();
                 if (i < ecBytes.length) {
                     result.appendBits(ecBytes[i], 8);
@@ -542,7 +536,9 @@ public final class Encoder {
         try {
             bytes = content.getBytes(encoding);
         } catch (UnsupportedEncodingException uee) {
-            throw new WriterException(uee.toString());
+            WriterException e = new WriterException(uee.toString());
+            e.setStackTrace(uee.getStackTrace());
+            throw e;
         }
         for (int i = 0; i < bytes.length; ++i) {
             bits.appendBits(bytes[i], 8);
@@ -555,7 +551,9 @@ public final class Encoder {
         try {
             bytes = content.getBytes("Shift_JIS");
         } catch (UnsupportedEncodingException uee) {
-            throw new WriterException(uee.toString());
+            WriterException e = new WriterException(uee.toString());
+            e.setStackTrace(uee.getStackTrace());
+            throw e;
         }
         int length = bytes.length;
         for (int i = 0; i < length; i += 2) {

@@ -1,6 +1,8 @@
 /*
  * Copyright 2008 ZXing authors
  *
+ * Modified by John Ahlroos 2011
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,22 +18,24 @@
 
 package fi.jasoft.qrcode.zxing;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Encapsulates a Character Set ECI, according to
  * "Extended Channel Interpretations" 5.3.1.1 of ISO 18004.
  * 
  * @author Sean Owen
+ * @author John Ahlroos
  */
 public final class CharacterSetECI extends ECI {
 
-    private static Hashtable VALUE_TO_ECI;
-    private static Hashtable NAME_TO_ECI;
+    private static Map<Integer, CharacterSetECI> valueToECIMap;
+    private static Map<String, CharacterSetECI> nameToECIMap;
 
     private static void initialize() {
-        VALUE_TO_ECI = new Hashtable(29);
-        NAME_TO_ECI = new Hashtable(29);
+        valueToECIMap = new HashMap<Integer, CharacterSetECI>(29);
+        nameToECIMap = new HashMap<String, CharacterSetECI>(29);
         // TODO figure out if these values are even right!
         addCharacterSet(0, "Cp437");
         addCharacterSet(1, new String[] { "ISO8859_1", "ISO-8859-1" });
@@ -67,15 +71,15 @@ public final class CharacterSetECI extends ECI {
 
     private static void addCharacterSet(int value, String encodingName) {
         CharacterSetECI eci = new CharacterSetECI(value, encodingName);
-        VALUE_TO_ECI.put(new Integer(value), eci); // can't use valueOf
-        NAME_TO_ECI.put(encodingName, eci);
+        valueToECIMap.put(Integer.valueOf(value), eci);
+        nameToECIMap.put(encodingName, eci);
     }
 
     private static void addCharacterSet(int value, String[] encodingNames) {
         CharacterSetECI eci = new CharacterSetECI(value, encodingNames[0]);
-        VALUE_TO_ECI.put(new Integer(value), eci); // can't use valueOf
+        valueToECIMap.put(Integer.valueOf(value), eci);
         for (int i = 0; i < encodingNames.length; i++) {
-            NAME_TO_ECI.put(encodingNames[i], eci);
+            nameToECIMap.put(encodingNames[i], eci);
         }
     }
 
@@ -88,13 +92,13 @@ public final class CharacterSetECI extends ECI {
      *             if ECI value is invalid
      */
     public static CharacterSetECI getCharacterSetECIByValue(int value) {
-        if (VALUE_TO_ECI == null) {
+        if (valueToECIMap == null) {
             initialize();
         }
         if (value < 0 || value >= 900) {
             throw new IllegalArgumentException("Bad ECI value: " + value);
         }
-        return (CharacterSetECI) VALUE_TO_ECI.get(new Integer(value));
+        return (CharacterSetECI) valueToECIMap.get(Integer.valueOf(value));
     }
 
     /**
@@ -104,10 +108,10 @@ public final class CharacterSetECI extends ECI {
      *         or null if it is legal but unsupported
      */
     public static CharacterSetECI getCharacterSetECIByName(String name) {
-        if (NAME_TO_ECI == null) {
+        if (nameToECIMap == null) {
             initialize();
         }
-        return (CharacterSetECI) NAME_TO_ECI.get(name);
+        return (CharacterSetECI) nameToECIMap.get(name);
     }
 
 }
