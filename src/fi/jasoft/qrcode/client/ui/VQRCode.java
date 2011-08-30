@@ -35,86 +35,91 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class VQRCode extends SimplePanel implements Paintable {
 
-	/** Set the CSS class name to allow styling. */
-	public static final String CLASSNAME = "v-qrcode";
+    /** Set the CSS class name to allow styling. */
+    public static final String CLASSNAME = "v-qrcode";
 
-	/** The client side widget identifier */
-	protected String paintableId;
+    /** The client side widget identifier */
+    protected String paintableId;
 
-	/** Reference to the server connection object. */
-	protected ApplicationConnection client;
-	
-	/** The qr encoded image */
-	private Image qrcode;
-	
-	/**
-	 * The constructor should first call super() to initialize the component and
-	 * then handle any initialization relevant to Vaadin.
-	 */
-	public VQRCode() {
-		
-		// This method call of the Paintable interface sets the component
-		// style name in DOM tree
-		setStyleName(CLASSNAME);
-		
-		qrcode = new Image();
-		qrcode.setStyleName(CLASSNAME+"-img");
-		qrcode.setAltText("qrcode");
-		setWidget(qrcode);
-	}
-	
-	private int pixelWidth = 100;
-	@Override
-	public void setWidth(String width) {
-		super.setWidth(width);
-		qrcode.setWidth(width);
-		qrcode.setHeight(pixelHeight+"px");
-		if(width.contains("px")){
-			pixelWidth = Integer.parseInt(width.replaceAll("px", ""));
-		}
-	}
-	
-	private int pixelHeight = 100;
-	@Override
-	public void setHeight(String height) {
-		super.setHeight(height);
-		qrcode.setHeight(height);
-		qrcode.setWidth(pixelWidth+"px");
-		if(height.contains("px")){
-			pixelHeight = Integer.parseInt(height.replaceAll("px", ""));
-		}
-	}
-	
+    /** Reference to the server connection object. */
+    protected ApplicationConnection client;
+
+    /** The qr encoded image */
+    private Image qrcode;
+
     /**
-     * Called whenever an update is received from the server 
+     * The constructor should first call super() to initialize the component and
+     * then handle any initialization relevant to Vaadin.
      */
-	private boolean initDone = false;
-	public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-		// This call should be made first. 
-		// It handles sizes, captions, tooltips, etc. automatically.
-		if (client.updateComponent(this, uidl, true)) {
-		    // If client.updateComponent returns true there has been no changes and we
-		    // do not need to update anything.
-			return;
-		}
+    public VQRCode() {
 
-		// Save reference to server connection object to be able to send
-		// user interaction later
-		this.client = client;
+        // This method call of the Paintable interface sets the component
+        // style name in DOM tree
+        setStyleName(CLASSNAME);
 
-		// Save the client side identifier (paintable id) for the widget
-		paintableId = uidl.getId();
-		
-		if(!initDone){
-			initDone = true;
-			client.updateVariable(paintableId, "pixelWidth", pixelWidth, false);
-			client.updateVariable(paintableId, "pixelHeight", pixelHeight, true);
-			client.updateVariable(paintableId, "load", true, true);
-		}
-		
-		if(uidl.hasAttribute("qrcode")){
-			String resUrl = client.translateVaadinUri(uidl.getStringAttribute("qrcode"));
-			qrcode.setUrl(resUrl);
-		}
-	}
+        qrcode = new Image();
+        qrcode.setStyleName(CLASSNAME + "-img");
+        qrcode.setAltText("qrcode");
+        setWidget(qrcode);
+    }
+
+    private int pixelWidth = 100;
+
+    @Override
+    public void setWidth(String width) {
+        super.setWidth(width);
+        qrcode.setWidth(width);
+        qrcode.setHeight(pixelHeight + "px");
+        if (width.contains("px")) {
+            pixelWidth = Integer.parseInt(width.replaceAll("px", ""));
+        }
+    }
+
+    private int pixelHeight = 100;
+
+    @Override
+    public void setHeight(String height) {
+        super.setHeight(height);
+        qrcode.setHeight(height);
+        qrcode.setWidth(pixelWidth + "px");
+        if (height.contains("px")) {
+            pixelHeight = Integer.parseInt(height.replaceAll("px", ""));
+        }
+    }
+
+    /**
+     * Called whenever an update is received from the server
+     */
+    private boolean initDone = false;
+
+    public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
+        // This call should be made first.
+        // It handles sizes, captions, tooltips, etc. automatically.
+        if (client.updateComponent(this, uidl, true)) {
+            // If client.updateComponent returns true there has been no changes
+            // and we
+            // do not need to update anything.
+            return;
+        }
+
+        // Save reference to server connection object to be able to send
+        // user interaction later
+        this.client = client;
+
+        // Save the client side identifier (paintable id) for the widget
+        paintableId = uidl.getId();
+
+        if (!initDone) {
+            initDone = true;
+            client.updateVariable(paintableId, "pixelWidth", pixelWidth, false);
+            client.updateVariable(paintableId, "pixelHeight", pixelHeight, true);
+            client.updateVariable(paintableId, "load", true, true);
+        }
+
+        if (uidl.hasAttribute("qrcode")) {
+            String resUrl = client.translateVaadinUri(uidl
+                    .getStringAttribute("qrcode"));
+            qrcode.setUrl(resUrl);
+        }
+    }
 }

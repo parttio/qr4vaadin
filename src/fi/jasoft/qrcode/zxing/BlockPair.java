@@ -23,20 +23,20 @@ package fi.jasoft.qrcode.zxing;
  */
 final class BlockPair {
 
-  private final byte[] dataBytes;
-  private final byte[] errorCorrectionBytes;
+    private final byte[] dataBytes;
+    private final byte[] errorCorrectionBytes;
 
-  BlockPair(byte[] data, byte[] errorCorrection) {
+    BlockPair(byte[] data, byte[] errorCorrection) {
         dataBytes = (byte[]) data.clone();
         errorCorrectionBytes = (byte[]) errorCorrection.clone();
-  }
+    }
 
-  public byte[] getDataBytes() {
-    return dataBytes;
-  }
+    public byte[] getDataBytes() {
+        return dataBytes;
+    }
 
-  public byte[] getErrorCorrectionBytes() {
-    return errorCorrectionBytes;
-  }
+    public byte[] getErrorCorrectionBytes() {
+        return errorCorrectionBytes;
+    }
 
 }
