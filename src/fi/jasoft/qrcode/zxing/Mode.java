@@ -47,8 +47,8 @@ public final class Mode {
 
   private Mode(int[] characterCountBitsForVersions, int bits, String name) {
         if (characterCountBitsForVersions != null) {
-            this.characterCountBitsForVersions = (int[]) characterCountBitsForVersions
-                    .clone();
+            int[] copy = (int[]) characterCountBitsForVersions.clone();
+            this.characterCountBitsForVersions = copy;
         } else {
             this.characterCountBitsForVersions = null;
         }
