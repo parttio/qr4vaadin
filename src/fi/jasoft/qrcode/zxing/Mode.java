@@ -18,6 +18,7 @@
 
 package fi.jasoft.qrcode.zxing;
 
+
 /**
  * <p>
  * See ISO 18004:2006, 6.4.1, Tables 2 and 3. This enum encapsulates the various
@@ -46,9 +47,11 @@ public final class Mode {
   private final String name;
 
   private Mode(int[] characterCountBitsForVersions, int bits, String name) {
-        if (characterCountBitsForVersions != null) {
-            int[] copy = (int[]) characterCountBitsForVersions.clone();
-            this.characterCountBitsForVersions = copy;
+        if (characterCountBitsForVersions != null){
+            this.characterCountBitsForVersions = new int[characterCountBitsForVersions.length];
+            System.arraycopy(characterCountBitsForVersions, 0,
+                    this.characterCountBitsForVersions, 0,
+                    characterCountBitsForVersions.length);
         } else {
             this.characterCountBitsForVersions = null;
         }
