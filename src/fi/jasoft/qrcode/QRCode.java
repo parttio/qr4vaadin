@@ -34,6 +34,7 @@ import com.vaadin.terminal.PaintTarget;
 import com.vaadin.terminal.StreamResource;
 import com.vaadin.ui.AbstractField;
 
+import fi.jasoft.qrcode.data.QRCodeType;
 import fi.jasoft.qrcode.zxing.ByteMatrix;
 import fi.jasoft.qrcode.zxing.Encoder;
 import fi.jasoft.qrcode.zxing.ErrorCorrectionLevel;
@@ -138,6 +139,7 @@ public class QRCode extends AbstractField {
         super.setValue(newValue, repaintIsNotNeeded);
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -230,7 +232,12 @@ public class QRCode extends AbstractField {
         super.paintContent(target);
 
         if (loadImage && initDone) {
-            String value = getValue() == null ? "" : getValue().toString();
+            String value;
+            if (getValue() instanceof QRCodeType) {
+                value = ((QRCodeType) getValue()).toQRString();
+            } else {
+                value = getValue() == null ? "" : getValue().toString();
+            }
             paintImage(target, value);
             loadImage = false;
         }
