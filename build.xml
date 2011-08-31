@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project> <!-- minimal DTD to make Eclipse shut up about the file not having a DTD or Schema (it's a bug in Eclipse) -->
+<project name="QRCode" basedir="." default="jar">
+	<target name="configure">
+		<property name="version" value="${addon-version}" />
+		
+		<property name="vaadin-jar" value="${vaadin-jar-location}" />
+		<property name="gwt-user-jar" value="${gwt-user-jar-location}" />
+		<property name="gwt-dev-jar" value="${gwt-dev-jar-location}" />
+		
+		<property name="client-side-src-location" value="src" />
+	
+		<property name="build-path" value="build" />
+		<property name="classes-dir" value="${build-path}/classes/" />
+
+		<property name="filename" value="qrcode-${version}" />
+		<property name="jar-filename" value="${build-path}/${filename}.jar" />
+		<property name="zip-filename" value="${build-path}/${filename}.zip" />
+
+		<property name="license" value="apache-license-2.0.txt"/>
+		
+		<path id="compile.classpath">
+			<pathelement path="${client-side-src-location}" />			
+			<pathelement path="${gwt-user-jar}" />
+			<pathelement path="${gwt-dev-jar}" />
+			<pathelement path="${vaadin-jar}" />
+		</path>
+	</target>
+	
+	<target name="quick-clean" >
+		<delete failonerror="false">
+		    <fileset dir="${build-path}" includes="**/*"/>
+		</delete>
+	</target>
+		
+	<target name="compile" depends="configure, quick-clean">
+		<mkdir dir="${classes-dir}"/>
+		<javac target="1.5" srcdir="${client-side-src-location}" destdir="${classes-dir}" >
+			<classpath>
+				<path refid="compile.classpath"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<mkdir dir="${build-path}/temp"/>
+		<copy todir="${build-path}/temp">
+			<fileset dir="${classes-dir}">
+				<exclude name="**/*.java" />
+				<exclude name="**/demo/**" />
+			</fileset>				
+			<fileset dir="${client-side-src-location}">
+				<exclude name="**/demo/**" />
+			</fileset>	
+		</copy>		
+				
+		<jar jarfile="${jar-filename}" basedir="${build-path}/temp">
+			<manifest>
+				<attribute name="Vaadin-Package-Version" value="1" />
+				<attribute name="Vaadin-Widgetsets" value="fi.jasoft.qrcode.QrcodeWidgetset" />
+				<attribute name="Implementation-Title" value="QRCode" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Implementation-Vendor" value="John Ahlroos" />					
+			</manifest>
+		</jar>
+				
+		<delete dir="${build-path}/temp" />
+	</target>					
+</project>
