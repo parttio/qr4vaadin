@@ -6,7 +6,6 @@ package fi.jasoft.qrcode.data;
  * @author John Ahlroos
  * 
  */
-@SuppressWarnings("serial")
 public class SMS implements QRCodeType {
 
     private String number;
@@ -23,7 +22,8 @@ public class SMS implements QRCodeType {
      *            The SMS message
      */
     public SMS(String number, String message) {
-        // TODO Auto-generated constructor stub
+        this.number = number;
+        this.message = message;
     }
 
     /*
