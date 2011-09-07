@@ -16,6 +16,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Embed a VCard in the QR code.
+ * 
+ * Please note that VCards are not supported by all QR code readers.
+ * 
+ * @author John Ahlroos
+ */
 @SuppressWarnings("serial")
 public class VCard implements QRCodeType {
     public static final String NAME_PROPERTY = "N";
