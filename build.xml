@@ -186,6 +186,7 @@
 			<manifest>
 				<attribute name="Vaadin-Package-Version" value="1" />
 				<attribute name="Vaadin-Widgetsets" value="${widgetset}" />
+				<attribute name="Vaadin-License-Title" value="Apache 2.0" />
 				<attribute name="Implementation-Title" value="${addon-name}" />
 				<attribute name="Implementation-Version" value="${addon-version}" />
 				<attribute name="Implementation-Vendor" value="${author}" />					
