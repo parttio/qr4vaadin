@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package fi.jasoft.qrcode;
+package fi.jasoft.qrcode.demo;
 
 import java.awt.Color;
 
@@ -28,6 +28,8 @@ import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+
+import fi.jasoft.qrcode.QRCode;
 
 public class QRCodeDemo extends Application {
 

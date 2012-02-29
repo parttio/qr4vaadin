@@ -38,7 +38,7 @@ public class MECARD implements QRCodeType {
     /*
      * (non-Javadoc)
      * 
-     * @see fi.jasoft.qrcode.types.QRCodeType#toQRString()
+     * @see fi.jasoft.qrcode.demo.types.QRCodeType#toQRString()
      */
     public String toQRString() {
         StringBuilder str = new StringBuilder();

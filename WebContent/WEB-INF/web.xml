@@ -14,13 +14,13 @@
 			<description>
 			Vaadin application class to start</description>
 			<param-name>application</param-name>
-			<param-value>fi.jasoft.qrcode.QRCodeDemo</param-value>
+			<param-value>fi.jasoft.qrcode.demo.QRCodeDemo</param-value>
 		</init-param>
 		<init-param>
 			<description>
 			Application widgetset</description>
 			<param-name>widgetset</param-name>
-			<param-value>fi.jasoft.qrcode.QrcodeWidgetset</param-value>
+			<param-value>fi.jasoft.qrcode.demo.DemoWidgetset</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>
