@@ -31,7 +31,11 @@ import javax.imageio.ImageIO;
 import com.vaadin.data.Property;
 import com.vaadin.terminal.PaintException;
 import com.vaadin.terminal.PaintTarget;
+import com.vaadin.terminal.Resource;
 import com.vaadin.terminal.StreamResource;
+import com.vaadin.terminal.gwt.client.AbstractFieldState;
+import com.vaadin.terminal.gwt.client.ComponentState;
+import com.vaadin.terminal.gwt.client.communication.RpcProxy;
 import com.vaadin.ui.AbstractField;
 
 import fi.jasoft.qrcode.data.QRCodeType;
@@ -48,8 +52,7 @@ import fi.jasoft.qrcode.zxing.ZXingQRCode;
  * @author John Ahlroos (www.jasoft.fi)
  */
 @SuppressWarnings("serial")
-@com.vaadin.ui.ClientWidget(fi.jasoft.qrcode.client.ui.VQRCode.class)
-public class QRCode extends AbstractField {
+public class QRCode extends AbstractField<String> {
 
     private final ZXingQRCode qrcode = new ZXingQRCode();
 
@@ -58,20 +61,20 @@ public class QRCode extends AbstractField {
 
     private int pixelWidth = 100;
     private int pixelHeight = 100;
-    private boolean loadImage = false;
-    private boolean initDone = false;
-
+    
     private Color fgColor = Color.BLACK;
     private Color bgColor = Color.WHITE;
 
     private ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
+    
+    private final QRCodeCommunicator communicator = new QRCodeCommunicator(this);
 
     /**
      * Constructs an empty <code>QRCode</code> with no caption.
      */
     public QRCode() {
         setInternalValue("");
-        loadImage = true;
+        getState().setQRCode(getQRCodeResource(getValue()));       
     }
 
     /**
@@ -125,7 +128,7 @@ public class QRCode extends AbstractField {
      */
     public QRCode(String caption, String value) {
         setInternalValue(value);
-        loadImage = true;
+        getState().setQRCode(getQRCodeResource(getValue()));       
         setCaption(caption);
     }
 
@@ -133,43 +136,15 @@ public class QRCode extends AbstractField {
      * {@inheritDoc}
      */
     @Override
-    protected void setValue(Object newValue, boolean repaintIsNotNeeded)
-            throws ReadOnlyException, ConversionException {
-        loadImage = !repaintIsNotNeeded;
+    protected void setValue(String newValue, boolean repaintIsNotNeeded)
+            throws ReadOnlyException {
+        if(!repaintIsNotNeeded){
+        	 getState().setQRCode(getQRCodeResource(getValue()));       
+        }
         super.setValue(newValue, repaintIsNotNeeded);
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void changeVariables(Object source, Map<String, Object> variables) {
-        super.changeVariables(source, variables);
-        if (variables.containsKey("pixelWidth")) {
-            pixelWidth = Integer.parseInt(variables.get("pixelWidth")
-                    .toString());
-            if (pixelWidth == -1) {
-                pixelWidth = 100;
-            }
-            initDone = true;
-        }
-        if (variables.containsKey("pixelHeight")) {
-            pixelHeight = Integer.parseInt(variables.get("pixelHeight")
-                    .toString());
-            if (pixelHeight == -1) {
-                pixelHeight = 100;
-            }
-            initDone = true;
-        }
-        if (variables.containsKey("load")) {
-            loadImage = true;
-            requestRepaint();
-        }
-    }
-
-    private void paintImage(PaintTarget target, String value)
-            throws PaintException {
+    private Resource getQRCodeResource(String value) {
 
         // Try to encode
         try {
@@ -177,7 +152,7 @@ public class QRCode extends AbstractField {
         } catch (WriterException e1) {
             logger.log(Level.SEVERE, "Could not encode QR Code for '" + value
                     + "'", e1);
-            return;
+            return null;
         }
 
         // Ensure pixel width
@@ -220,35 +195,7 @@ public class QRCode extends AbstractField {
                         return null;
                     }
                 }, filename, getApplication());
-
-        target.addAttribute("qrcode", resource);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void paintContent(PaintTarget target) throws PaintException {
-        super.paintContent(target);
-
-        if (loadImage && initDone) {
-            String value;
-            if (getValue() instanceof QRCodeType) {
-                value = ((QRCodeType) getValue()).toQRString();
-            } else {
-                value = getValue() == null ? "" : getValue().toString();
-            }
-            paintImage(target, value);
-            loadImage = false;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Class<?> getType() {
-        return String.class;
+        return resource;
     }
 
     /**
@@ -370,8 +317,7 @@ public class QRCode extends AbstractField {
         } else {
             fgColor = color;
         }
-        loadImage = true;
-        requestRepaint();
+        getState().setQRCode(getQRCodeResource(getValue()));   
     }
 
     /**
@@ -396,10 +342,19 @@ public class QRCode extends AbstractField {
         } else {
             bgColor = color;
         }
-        loadImage = true;
-        requestRepaint();
+        getState().setQRCode(getQRCodeResource(getValue()));       
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.vaadin.ui.AbstractField#getState()
+     */
+    @Override
+    public QRCodeState getState() {    	
+    	return (QRCodeState) super.getState();
     }
 
+    
     /**
      * Returns the error correction level. Default is
      * {@link ErrorCorrectionLevel#L}
@@ -418,5 +373,31 @@ public class QRCode extends AbstractField {
      */
     protected void setEcl(ErrorCorrectionLevel ecl) {
         this.ecl = ecl;
+        getState().setQRCode(getQRCodeResource(getValue()));       
     }
+    
+    void setInternalWidth(int pixels){
+    	 pixelWidth = pixels;
+         if (pixelWidth == -1) {
+             pixelWidth = 100;
+         }        
+         getState().setQRCode(getQRCodeResource(getValue()));       
+    }
+    
+    void setInternalHeight(int pixels){
+    	  pixelHeight = pixels;
+          if (pixelHeight == -1) {
+              pixelHeight = 100;
+          }         
+          getState().setQRCode(getQRCodeResource(getValue()));       
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.vaadin.ui.AbstractField#getType()
+     */
+	@Override
+	public Class<? extends String> getType() {		
+		return String.class;
+	}
 }

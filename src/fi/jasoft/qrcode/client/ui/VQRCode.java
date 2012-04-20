@@ -55,30 +55,6 @@ public class VQRCode extends SimplePanel implements Paintable {
         setWidget(qrcode);
     }
 
-    private int pixelWidth = 100;
-
-    @Override
-    public void setWidth(String width) {
-        super.setWidth(width);
-        qrcode.setWidth(width);
-        qrcode.setHeight(pixelHeight + "px");
-        if (width.contains("px")) {
-            pixelWidth = Integer.parseInt(width.replaceAll("px", ""));
-        }
-    }
-
-    private int pixelHeight = 100;
-
-    @Override
-    public void setHeight(String height) {
-        super.setHeight(height);
-        qrcode.setHeight(height);
-        qrcode.setWidth(pixelWidth + "px");
-        if (height.contains("px")) {
-            pixelHeight = Integer.parseInt(height.replaceAll("px", ""));
-        }
-    }
-
     /**
      * Called whenever an update is received from the server
      */
@@ -102,9 +78,7 @@ public class VQRCode extends SimplePanel implements Paintable {
         paintableId = uidl.getId();
 
         if (!initDone) {
-            initDone = true;
-            client.updateVariable(paintableId, "pixelWidth", pixelWidth, false);
-            client.updateVariable(paintableId, "pixelHeight", pixelHeight, true);
+            initDone = true;  
             client.updateVariable(paintableId, "load", true, true);
         }
 
@@ -113,23 +87,5 @@ public class VQRCode extends SimplePanel implements Paintable {
                     .getStringAttribute("qrcode"));
             qrcode.setUrl(resUrl);
         }
-    }
-
-    /**
-     * Get the components PID
-     * 
-     * @return
-     */
-    protected String getPaintableId() {
-        return paintableId;
-    }
-
-    /**
-     * Get Application connection
-     * 
-     * @return
-     */
-    protected ApplicationConnection getClient() {
-        return client;
     }
 }
