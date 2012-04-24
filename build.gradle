@@ -142,7 +142,9 @@ jar{
     dependsOn test
     
     // Include sources
-    from sourceSets.main.allJava
+    sourceSets.main.java.srcDirs.each{ 
+        from it
+    }
     
     // Exclude demo sources
     exclude '**/demo/**/*'
