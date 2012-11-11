@@ -1,0 +1,36 @@
+//apply from: 'http://plugins.jasoft.fi/vaadin.plugin'
+apply from: 'file:///home/johnnie/Workspaces/Gradle/VaadinPlugin/vaadin-development.plugin'
+vaadin {
+	version = '6.8.4'
+	widgetset = 'fi.jasoft.qrcode.QrcodeWidgetset'
+}
+
+
+
+
+def addonName = 'QRCode'
+def addonAuthor = 'John Ahlroos'
+def addonLicence = 'Apache 2.0'
+
+jar{
+	// Do not build if tests do not pass
+	dependsOn test
+
+	// Include sources
+	sourceSets.main.java.srcDirs.each{
+		from it
+	}
+
+	// Create manifest
+	manifest{
+		attributes(
+			'Vaadin-Package-Version': 1,
+			'Vaadin-Widgetsets': vaadin.widgetset,
+			'Vaadin-License-Title': addonLicence,
+			'Implementation-Title': addonName,
+			'Implementation-Version': version,
+			'Implementation-Vendor': addonAuthor,
+		)	
+	}
+}
+
