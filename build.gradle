@@ -4,6 +4,11 @@ allprojects {
 }
 
 subprojects{
+	apply from: 'http://plugins.jasoft.fi/vaadin.plugin'
 	apply plugin: 'eclipse'
+
+	vaadin {
+		version = '6.8.4'
+	}
 }
 

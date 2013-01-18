@@ -1,2 +1,2 @@
-include 'qrcode-addon'
-include 'qrcode-demo'
+include 'addon'
+include 'demo'
