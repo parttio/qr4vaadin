@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 John Ahlroos
+ * Copyright 2013 John Ahlroos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,16 +28,11 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import com.vaadin.data.Property;
-import com.vaadin.terminal.PaintException;
-import com.vaadin.terminal.PaintTarget;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.StreamResource;
-import com.vaadin.terminal.gwt.client.AbstractFieldState;
-import com.vaadin.terminal.gwt.client.ComponentState;
-import com.vaadin.terminal.gwt.client.communication.RpcProxy;
+import com.vaadin.server.StreamResource;
 import com.vaadin.ui.AbstractField;
 
-import fi.jasoft.qrcode.data.QRCodeType;
+import fi.jasoft.qrcode.client.ui.QRCodeConnector;
+import fi.jasoft.qrcode.client.ui.SizeListener;
 import fi.jasoft.qrcode.zxing.ByteMatrix;
 import fi.jasoft.qrcode.zxing.Encoder;
 import fi.jasoft.qrcode.zxing.ErrorCorrectionLevel;
@@ -52,29 +46,27 @@ import fi.jasoft.qrcode.zxing.ZXingQRCode;
  * @author John Ahlroos (www.jasoft.fi)
  */
 @SuppressWarnings("serial")
-public class QRCode extends AbstractField<String> {
+public class QRCode extends AbstractField<String> implements SizeListener {
 
     private final ZXingQRCode qrcode = new ZXingQRCode();
 
     private static final Logger logger = Logger.getLogger(QRCode.class
             .getName());
 
-    private int pixelWidth = 100;
-    private int pixelHeight = 100;
+    private int pixelWidth = -1;
+    private int pixelHeight = -1;
     
     private Color fgColor = Color.BLACK;
     private Color bgColor = Color.WHITE;
 
     private ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
-    
-    private final QRCodeCommunicator communicator = new QRCodeCommunicator(this);
 
     /**
      * Constructs an empty <code>QRCode</code> with no caption.
      */
     public QRCode() {
         setInternalValue("");
-        getState().setQRCode(getQRCodeResource(getValue()));       
+        registerRpc(this, SizeListener.class);
     }
 
     /**
@@ -128,41 +120,57 @@ public class QRCode extends AbstractField<String> {
      */
     public QRCode(String caption, String value) {
         setInternalValue(value);
-        getState().setQRCode(getQRCodeResource(getValue()));       
         setCaption(caption);
     }
-
-    /**
-     * {@inheritDoc}
+    
+    /*
+     * (non-Javadoc)
+     * @see com.vaadin.ui.AbstractField#setInternalValue(java.lang.Object)
      */
     @Override
-    protected void setValue(String newValue, boolean repaintIsNotNeeded)
-            throws ReadOnlyException {
-        if(!repaintIsNotNeeded){
-        	 getState().setQRCode(getQRCodeResource(getValue()));       
-        }
-        super.setValue(newValue, repaintIsNotNeeded);
+    protected void setInternalValue(String newValue) {
+    	super.setInternalValue(newValue);
+    	generateQRCode();
     }
 
-    private Resource getQRCodeResource(String value) {
-
+    /*
+     * (non-Javadoc)
+     * @see com.vaadin.ui.AbstractComponent#setWidth(float, com.vaadin.server.Sizeable.Unit)
+     */
+    @Override
+    public void setWidth(float width, Unit unit) {
+    	super.setWidth(width, unit);
+    	generateQRCode();
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.vaadin.ui.AbstractComponent#setHeight(float, com.vaadin.server.Sizeable.Unit)
+     */
+    @Override
+    public void setHeight(float height, Unit unit) {
+    	super.setHeight(height, unit);
+    	generateQRCode();
+    }
+    
+    private void generateQRCode() {
+    	
+    	if(pixelHeight < 0 || pixelWidth < 0){
+    		return;
+    	}
+    	
+    	String value = getValue();
+    	if(value == null){
+    		value = "";
+    	}
+    	
         // Try to encode
         try {
             Encoder.encode(value, ecl, qrcode);
         } catch (WriterException e1) {
             logger.log(Level.SEVERE, "Could not encode QR Code for '" + value
                     + "'", e1);
-            return null;
-        }
-
-        // Ensure pixel width
-        if (pixelWidth <= 0) {
-            pixelWidth = 100;
-        }
-
-        // Ensure pixel height
-        if (pixelHeight <= 0) {
-            pixelHeight = 100;
+            return;
         }
 
         /*
@@ -175,7 +183,7 @@ public class QRCode extends AbstractField<String> {
                 + UUID.nameUUIDFromBytes(hash.getBytes()).toString() + ".png";
 
         // Create a image resource
-        StreamResource resource = new StreamResource(
+        setResource(QRCodeConnector.RESOURCE_KEY, new StreamResource(
                 new StreamResource.StreamSource() {
                     public InputStream getStream() {
                         ByteMatrix matrix = renderResult(qrcode, pixelWidth,
@@ -194,8 +202,7 @@ public class QRCode extends AbstractField<String> {
                         }
                         return null;
                     }
-                }, filename, getApplication());
-        return resource;
+                }, filename));
     }
 
     /**
@@ -317,7 +324,7 @@ public class QRCode extends AbstractField<String> {
         } else {
             fgColor = color;
         }
-        getState().setQRCode(getQRCodeResource(getValue()));   
+        generateQRCode();
     }
 
     /**
@@ -342,18 +349,8 @@ public class QRCode extends AbstractField<String> {
         } else {
             bgColor = color;
         }
-        getState().setQRCode(getQRCodeResource(getValue()));       
+        generateQRCode();
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.vaadin.ui.AbstractField#getState()
-     */
-    @Override
-    public QRCodeState getState() {    	
-    	return (QRCodeState) super.getState();
-    }
-
     
     /**
      * Returns the error correction level. Default is
@@ -373,23 +370,7 @@ public class QRCode extends AbstractField<String> {
      */
     protected void setEcl(ErrorCorrectionLevel ecl) {
         this.ecl = ecl;
-        getState().setQRCode(getQRCodeResource(getValue()));       
-    }
-    
-    void setInternalWidth(int pixels){
-    	 pixelWidth = pixels;
-         if (pixelWidth == -1) {
-             pixelWidth = 100;
-         }        
-         getState().setQRCode(getQRCodeResource(getValue()));       
-    }
-    
-    void setInternalHeight(int pixels){
-    	  pixelHeight = pixels;
-          if (pixelHeight == -1) {
-              pixelHeight = 100;
-          }         
-          getState().setQRCode(getQRCodeResource(getValue()));       
+        generateQRCode();
     }
 
     /*
@@ -399,5 +380,16 @@ public class QRCode extends AbstractField<String> {
 	@Override
 	public Class<? extends String> getType() {		
 		return String.class;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see fi.jasoft.qrcode.client.ui.SizeListener#sizeChanged(int, int)
+	 */
+	@Override
+	public void sizeChanged(int width, int height) {
+		pixelWidth = width;
+		pixelHeight = height;
+		generateQRCode();
 	}
 }

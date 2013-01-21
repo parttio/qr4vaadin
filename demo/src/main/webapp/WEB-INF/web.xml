@@ -8,10 +8,10 @@
 	</context-param>
 	<servlet>
 		<servlet-name>Demo</servlet-name>
-		<servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>
+		<servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
 		<init-param>
-			<description>The root</description>
-			<param-name>root</param-name>
+			<description>The UI</description>
+			<param-name>ui</param-name>
 			<param-value>fi.jasoft.qrcode.demo.QRCodeDemo</param-value>
 		</init-param>
 		<init-param>

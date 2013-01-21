@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 John Ahlroos
+ * Copyright 2013 John Ahlroos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,34 +20,39 @@ import java.awt.Color;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.terminal.WrappedRequest;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Root;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import fi.jasoft.qrcode.QRCode;
 
-public class QRCodeDemo extends Root {
+public class QRCodeDemo extends UI {
 
     private static final String COLOR_ITEM_PROPERTY = "color";
+    
+    private static final String SIZE_ITEM_PROPERTY = "size";
 
     private QRCode code;
 
     @Override
-    protected void init(WrappedRequest request) {
-
+    protected void init(VaadinRequest request) {
+    	VerticalLayout root = new VerticalLayout();
+    	root.setSpacing(true);
+    	setContent(root);
+    	
         code = new QRCode();
-
-        ((VerticalLayout) getContent()).setSpacing(true);
+        code.setWidth("100px");
+        code.setHeight("100px");
 
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
         layout.setCaption("Text embedded in QR Code");
-        addComponent(layout);
+        root.addComponent(layout);
 
         final TextField text = new TextField();
         text.setWidth("500px");
@@ -66,7 +71,7 @@ public class QRCodeDemo extends Root {
 
         HorizontalLayout layout2 = new HorizontalLayout();
         layout2.setSpacing(true);
-        addComponent(layout2);
+        root.addComponent(layout2);
 
         final NativeSelect fgColor = new NativeSelect("Primary color");
         fgColor.setImmediate(true);
@@ -117,8 +122,32 @@ public class QRCodeDemo extends Root {
             }
         });
         layout2.addComponent(bgColor);
+        
+        final NativeSelect size = new NativeSelect("Size");
+        size.setImmediate(true);
+        size.setNullSelectionAllowed(false);
+        size.setWidth("100px");
+        size.addContainerProperty(SIZE_ITEM_PROPERTY, Integer.class,
+                50);
+        
+        size.addItem("50x50");
+        size.addItem("100x100").getItemProperty(SIZE_ITEM_PROPERTY).setValue(100);
+        size.addItem("150x150").getItemProperty(SIZE_ITEM_PROPERTY).setValue(150);
+        size.select("100x100");
+        size.addValueChangeListener(new Property.ValueChangeListener() {
+			
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Item item = size.getItem(event.getProperty().getValue());
+				int size = (int) item.getItemProperty(SIZE_ITEM_PROPERTY).getValue();
+				code.setWidth(size, Unit.PIXELS);
+				code.setHeight(size, Unit.PIXELS);
+			}
+		});
+        
+        layout2.addComponent(size);
 
         code.setCaption("QR Code");
-        addComponent(code);
+        root.addComponent(code);
     }
 }

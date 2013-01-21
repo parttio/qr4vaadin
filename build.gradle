@@ -8,7 +8,7 @@ subprojects{
 	apply plugin: 'eclipse'
 
 	vaadin {
-		version = '6.8.4'
+		version = '7.0.0.rc1'
 	}
 }
 

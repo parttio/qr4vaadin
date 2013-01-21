@@ -1,5 +1,4 @@
 vaadin {
-	version = '6.8.4'
 	widgetset = 'fi.jasoft.qrcode.QrcodeWidgetset'
 }
 

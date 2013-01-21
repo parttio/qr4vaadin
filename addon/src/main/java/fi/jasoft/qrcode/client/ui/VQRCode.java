@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 John Ahlroos
+ * Copyright 2013 John Ahlroos
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,75 +17,78 @@ package fi.jasoft.qrcode.client.ui;
 
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.vaadin.terminal.gwt.client.ApplicationConnection;
-import com.vaadin.terminal.gwt.client.Paintable;
-import com.vaadin.terminal.gwt.client.UIDL;
 
 /**
  * Client side widget which communicates with the server. Messages from the
  * server are shown as HTML and mouse clicks are sent to the server.
  */
-public class VQRCode extends SimplePanel implements Paintable {
+public class VQRCode extends SimplePanel {
 
     /** Set the CSS class name to allow styling. */
     public static final String CLASSNAME = "v-qrcode";
 
-    /** The client side widget identifier */
-    private String paintableId;
-
-    /** Reference to the server connection object. */
-    private ApplicationConnection client;
-
     /** The qr encoded image */
     private Image qrcode;
+    
+    private SizeListener listener;
 
     /**
      * The constructor should first call super() to initialize the component and
      * then handle any initialization relevant to Vaadin.
      */
     public VQRCode() {
-
-        // This method call of the Paintable interface sets the component
-        // style name in DOM tree
         setStyleName(CLASSNAME);
-
         qrcode = new Image();
         qrcode.setStyleName(CLASSNAME + "-img");
-        qrcode.setAltText("qrcode");
         setWidget(qrcode);
     }
-
+    
     /**
-     * Called whenever an update is received from the server
+     * Set the URL of the qr-code
+     * 
+     * @param url
+     * 		The url of the image 
      */
-    private boolean initDone = false;
-
-    public void updateFromUIDL(UIDL uidl, ApplicationConnection client) {
-        // This call should be made first.
-        // It handles sizes, captions, tooltips, etc. automatically.
-        if (client.updateComponent(this, uidl, true)) {
-            // If client.updateComponent returns true there has been no changes
-            // and we
-            // do not need to update anything.
-            return;
-        }
-
-        // Save reference to server connection object to be able to send
-        // user interaction later
-        this.client = client;
-
-        // Save the client side identifier (paintable id) for the widget
-        paintableId = uidl.getId();
-
-        if (!initDone) {
-            initDone = true;  
-            client.updateVariable(paintableId, "load", true, true);
-        }
-
-        if (uidl.hasAttribute("qrcode")) {
-            String resUrl = client.translateVaadinUri(uidl
-                    .getStringAttribute("qrcode"));
-            qrcode.setUrl(resUrl);
-        }
+    public void setUrl(String url){
+    	assert(url != null);
+    	qrcode.setUrl(url);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.google.gwt.user.client.ui.Widget#onLoad()
+     */
+    @Override
+    protected void onLoad() {
+    	super.onLoad();
+    	listener.sizeChanged(getOffsetWidth(), getOffsetHeight());
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.google.gwt.user.client.ui.UIObject#setWidth(java.lang.String)
+     */
+    @Override
+    public void setWidth(String width) {
+    	super.setWidth(width);
+    	listener.sizeChanged(getOffsetWidth(), getOffsetHeight());
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see com.google.gwt.user.client.ui.UIObject#setHeight(java.lang.String)
+     */
+    @Override
+    public void setHeight(String height) {
+    	super.setHeight(height);
+    	listener.sizeChanged(getOffsetWidth(), getOffsetHeight());
+    }
+    
+    /**
+     * Set listener for listening to size changes
+     * @param listener
+     */
+    public void setSizeListener(SizeListener listener) {
+    	this.listener = listener;
     }
 }
