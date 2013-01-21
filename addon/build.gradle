@@ -1,0 +1,27 @@
+vaadin {
+	version = '6.8.4'
+	widgetset = 'fi.jasoft.qrcode.QrcodeWidgetset'
+}
+
+jar{
+	// Do not build if tests do not pass
+	dependsOn test
+
+	// Include sources
+	sourceSets.main.java.srcDirs.each{
+		from it
+	}
+
+	// Create manifest
+	manifest{
+		attributes(
+			'Vaadin-Package-Version': 1,
+			'Vaadin-Widgetsets': vaadin.widgetset,
+			'Vaadin-License-Title': 'Apache 2.0',
+			'Implementation-Title': 'QRCode',
+			'Implementation-Version': version,
+			'Implementation-Vendor': 'John Ahlroos'
+		)	
+	}
+}
+
