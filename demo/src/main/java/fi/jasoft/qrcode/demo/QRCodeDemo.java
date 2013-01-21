@@ -139,7 +139,7 @@ public class QRCodeDemo extends UI {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				Item item = size.getItem(event.getProperty().getValue());
-				int size = (int) item.getItemProperty(SIZE_ITEM_PROPERTY).getValue();
+				Integer size = (Integer) item.getItemProperty(SIZE_ITEM_PROPERTY).getValue();
 				code.setWidth(size, Unit.PIXELS);
 				code.setHeight(size, Unit.PIXELS);
 			}
