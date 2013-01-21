@@ -1,8 +1,12 @@
 vaadin {
 	widgetset = 'fi.jasoft.qrcode.QrcodeWidgetset'
+	manageWidgetset = false
 }
 
 jar{
+	 // JAR filename
+	baseName = 'qrcode'
+
 	// Do not build if tests do not pass
 	dependsOn test
 
