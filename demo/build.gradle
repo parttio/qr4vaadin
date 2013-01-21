@@ -8,7 +8,7 @@ vaadin {
 
 war {
 	// WAR filename
-	archiveName = 'QRCode.war'
+	archiveName = 'QRCode7.war'
 
 	// Include widgetset
 	dependsOn test, widgetset
