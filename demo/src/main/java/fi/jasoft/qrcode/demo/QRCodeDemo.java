@@ -75,7 +75,7 @@ public class QRCodeDemo extends UI {
         root.setFirstComponent(first);
 
         first.addComponent(new HorizontalLayout(createPrimaryColorSelect(),
-                createSecondaryColorSelect()));
+                createSecondaryColorSelect(), createSizeSelect()));
 
         final TextArea text = new TextArea("Text embedded in QR Code");
         text.setInputPrompt("Type the message of the QR code here");
