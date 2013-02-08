@@ -34,17 +34,17 @@ import fi.jasoft.qrcode.QRCode;
 public class QRCodeDemo extends UI {
 
     private static final String COLOR_ITEM_PROPERTY = "color";
-    
+
     private static final String SIZE_ITEM_PROPERTY = "size";
 
     private QRCode code;
 
     @Override
     protected void init(VaadinRequest request) {
-    	VerticalLayout root = new VerticalLayout();
-    	root.setSpacing(true);
-    	setContent(root);
-    	
+        VerticalLayout root = new VerticalLayout();
+        root.setSpacing(true);
+        setContent(root);
+
         code = new QRCode();
         code.setWidth("100px");
         code.setHeight("100px");
@@ -122,29 +122,40 @@ public class QRCodeDemo extends UI {
             }
         });
         layout2.addComponent(bgColor);
-        
+
         final NativeSelect size = new NativeSelect("Size");
         size.setImmediate(true);
         size.setNullSelectionAllowed(false);
         size.setWidth("100px");
-        size.addContainerProperty(SIZE_ITEM_PROPERTY, Integer.class,
-                50);
-        
+        size.addContainerProperty(SIZE_ITEM_PROPERTY, Integer.class, 50);
+
         size.addItem("50x50");
-        size.addItem("100x100").getItemProperty(SIZE_ITEM_PROPERTY).setValue(100);
-        size.addItem("150x150").getItemProperty(SIZE_ITEM_PROPERTY).setValue(150);
+        size.addItem("100x100").getItemProperty(SIZE_ITEM_PROPERTY)
+                .setValue(100);
+        size.addItem("150x150").getItemProperty(SIZE_ITEM_PROPERTY)
+                .setValue(150);
+        size.addItem("300x300").getItemProperty(SIZE_ITEM_PROPERTY)
+                .setValue(300);
+        size.addItem("500x500").getItemProperty(SIZE_ITEM_PROPERTY)
+                .setValue(500);
+        size.addItem("750x750").getItemProperty(SIZE_ITEM_PROPERTY)
+                .setValue(750);
+        size.addItem("1000x1000").getItemProperty(SIZE_ITEM_PROPERTY)
+                .setValue(1000);
+
         size.select("100x100");
         size.addValueChangeListener(new Property.ValueChangeListener() {
-			
-			@Override
-			public void valueChange(ValueChangeEvent event) {
-				Item item = size.getItem(event.getProperty().getValue());
-				Integer size = (Integer) item.getItemProperty(SIZE_ITEM_PROPERTY).getValue();
-				code.setWidth(size, Unit.PIXELS);
-				code.setHeight(size, Unit.PIXELS);
-			}
-		});
-        
+
+            @Override
+            public void valueChange(ValueChangeEvent event) {
+                Item item = size.getItem(event.getProperty().getValue());
+                Integer size = (Integer) item.getItemProperty(
+                        SIZE_ITEM_PROPERTY).getValue();
+                code.setWidth(size, Unit.PIXELS);
+                code.setHeight(size, Unit.PIXELS);
+            }
+        });
+
         layout2.addComponent(size);
 
         code.setCaption("QR Code");
