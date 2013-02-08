@@ -20,14 +20,21 @@ import java.awt.Color;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.ObjectProperty;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 import fi.jasoft.qrcode.QRCode;
 
@@ -39,40 +46,68 @@ public class QRCodeDemo extends UI {
 
     private QRCode code;
 
+    private ObjectProperty<String> message = new ObjectProperty<String>("");
+
     @Override
     protected void init(VaadinRequest request) {
-        VerticalLayout root = new VerticalLayout();
-        root.setSpacing(true);
-        setContent(root);
+
+        VerticalLayout content = new VerticalLayout();
+        content.setSizeFull();
+        setContent(content);
+
+        Label header = new Label("QR Code Generator");
+        header.setStyleName(Reindeer.LABEL_H2);
+        content.addComponent(header);
+
+        HorizontalSplitPanel root = new HorizontalSplitPanel();
+        root.setSizeFull();
+        root.setSplitPosition(50, Unit.PERCENTAGE);
+        root.setLocked(true);
+        root.setStyleName(Reindeer.SPLITPANEL_SMALL);
+
+        Panel panel = new Panel(root);
+        panel.setSizeFull();
+        content.addComponent(panel);
+        content.setExpandRatio(panel, 1);
+
+        VerticalLayout first = new VerticalLayout();
+        first.setSizeFull();
+        root.setFirstComponent(first);
+
+        first.addComponent(new HorizontalLayout(createPrimaryColorSelect(),
+                createSecondaryColorSelect()));
+
+        final TextArea text = new TextArea("Text embedded in QR Code");
+        text.setInputPrompt("Type the message of the QR code here");
+        text.setSizeFull();
+        text.setTextChangeEventMode(TextChangeEventMode.LAZY);
+        text.addTextChangeListener(new TextChangeListener() {
+
+            @Override
+            public void textChange(TextChangeEvent event) {
+                text.setValue(event.getText());
+
+            }
+        });
+        text.setImmediate(true);
+        text.setPropertyDataSource(message);
+        first.addComponent(text);
+        first.setExpandRatio(text, 1);
+
+        VerticalLayout vl = new VerticalLayout();
+        vl.setSizeFull();
 
         code = new QRCode();
         code.setWidth("100px");
         code.setHeight("100px");
+        code.setPropertyDataSource(message);
+        vl.addComponent(code);
+        vl.setComponentAlignment(code, Alignment.MIDDLE_CENTER);
 
-        HorizontalLayout layout = new HorizontalLayout();
-        layout.setSpacing(true);
-        layout.setCaption("Text embedded in QR Code");
-        root.addComponent(layout);
+        root.setSecondComponent(vl);
+    }
 
-        final TextField text = new TextField();
-        text.setWidth("500px");
-        text.setImmediate(true);
-        text.setValue("The quick brown fox jumps over the lazy dog");
-        layout.addComponent(text);
-
-        code.setValue("The quick brown fox jumps over the lazy dog");
-
-        Button gen = new Button("Generate!", new Button.ClickListener() {
-            public void buttonClick(ClickEvent event) {
-                code.setValue(text.getValue());
-            }
-        });
-        layout.addComponent(gen);
-
-        HorizontalLayout layout2 = new HorizontalLayout();
-        layout2.setSpacing(true);
-        root.addComponent(layout2);
-
+    private NativeSelect createPrimaryColorSelect() {
         final NativeSelect fgColor = new NativeSelect("Primary color");
         fgColor.setImmediate(true);
         fgColor.setNullSelectionAllowed(false);
@@ -96,8 +131,10 @@ public class QRCodeDemo extends UI {
                         COLOR_ITEM_PROPERTY).getValue());
             }
         });
-        layout2.addComponent(fgColor);
+        return fgColor;
+    }
 
+    private NativeSelect createSecondaryColorSelect() {
         final NativeSelect bgColor = new NativeSelect("Secondary color");
         bgColor.setImmediate(true);
         bgColor.setNullSelectionAllowed(false);
@@ -121,8 +158,10 @@ public class QRCodeDemo extends UI {
                         COLOR_ITEM_PROPERTY).getValue());
             }
         });
-        layout2.addComponent(bgColor);
+        return bgColor;
+    }
 
+    private NativeSelect createSizeSelect() {
         final NativeSelect size = new NativeSelect("Size");
         size.setImmediate(true);
         size.setNullSelectionAllowed(false);
@@ -155,10 +194,6 @@ public class QRCodeDemo extends UI {
                 code.setHeight(size, Unit.PIXELS);
             }
         });
-
-        layout2.addComponent(size);
-
-        code.setCaption("QR Code");
-        root.addComponent(code);
+        return size;
     }
 }
