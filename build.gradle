@@ -6,9 +6,10 @@ allprojects {
 subprojects{
 	apply from: 'http://plugins.jasoft.fi/vaadin.plugin'
 	apply plugin: 'eclipse'
-
+	sourceCompatibility=1.6
+	targetCompatibility=1.6
 	vaadin {
-		version = '6.8.4'
+		version = '6.8.+'
 	}
 }
 
