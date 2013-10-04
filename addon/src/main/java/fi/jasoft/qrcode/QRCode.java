@@ -120,6 +120,7 @@ public class QRCode extends AbstractField<String> implements SizeListener {
      */
     public QRCode(String caption, String value) {
     	setInternalValue(value);
+    	setCaption(caption); 
         registerRpc(this, SizeListener.class);
     }
     
