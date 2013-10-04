@@ -1,5 +1,5 @@
 QRCode addon for Vaadin 7
-=========
+==========================
 
 QR codes were born in Japan but are becoming more and more popular around 
 the world and you pretty much can find them everywhere on the web, in magazines, 
@@ -10,17 +10,17 @@ by most bar code readers and mobile phones.
 
 
 Building the addon
-========
+-------------------
 To build the addon you only need to run ```./gradlew :addon:jar``` and the addon will 
 be created under the addon/build/libs folder
 
 Running the demo application
-========
+-----------------------------
 To run the demo application you can run ```./gradlew :demo:vaadinRun``` which will
 start a embedded jetty server. The application will be available at http://localhost:8888.
 
 Developing the addon
-========
+---------------------
 To start working on the addon in Eclipse you should do the following:
 1. Run ```./gradlew eclipse``` in the root folder. It will generate the needed eclipse files.
 2. In eclipse create a new workspace (for instance named qrcode)
@@ -29,7 +29,7 @@ To start working on the addon in Eclipse you should do the following:
 5. Start working with the code
 
 Contributing to the addon
-========
+--------------------------
 If you want to contribute fixes or features to the project then you should fork the project 
 and create a pull request in Github. 
 
