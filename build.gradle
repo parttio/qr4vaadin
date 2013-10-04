@@ -25,6 +25,7 @@ project(':addon'){
 
 	// Include sources
 	jar {
+		baseName = 'qrcode'
 		sourceSets.main.java.srcDirs.each{
 			from it
 		}
@@ -38,11 +39,12 @@ project(':demo'){
 	}
 
 	vaadin {
-        	widgetset = 'fi.jasoft.qrcode.demo.DemoWidgetset'
-		gwt {
-			strict true
-			logLevel 'TRACE'
-			collapsePermutations true
-		}
+        	widgetset = 'fi.jasoft.qrcode.demo.DemoWidgetset'	
+	}
+
+	war {
+		dependsOn widgetset
+		exclude 'VAADIN/gwt-unitCache/**'
+		archiveName = 'QRCode7.war'
 	}
 }
