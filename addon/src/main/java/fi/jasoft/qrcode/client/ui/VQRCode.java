@@ -50,8 +50,12 @@ public class VQRCode extends SimplePanel {
      * 		The url of the image 
      */
     public void setUrl(String url){
-    	assert(url != null);
-    	qrcode.setUrl(url);
+    	if(url == null){
+    		qrcode.setVisible(false);
+    	} else {
+    		qrcode.setVisible(true);
+    		qrcode.setUrl(url);
+    	}
     }
     
     /*
