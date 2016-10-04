@@ -1,5 +1,6 @@
-QRCode addon for Vaadin 7
-==========================
+# QRCode addon for Vaadin 7
+
+# This project has reached End-Of-Life (EOL) and is no longer maintained.
 
 QR codes were born in Japan but are becoming more and more popular around 
 the world and you pretty much can find them everywhere on the web, in magazines, 
