@@ -1,0 +1,16 @@
+dependencies {
+    compile project(':addon')
+}
+
+vaadin {
+    version '8.0.0.beta1'
+}
+
+vaadinCompile {
+	userAgent 'ie10,gecko1_8,safari'
+}
+
+war {
+    archiveName = 'QRCode8.war'
+}
+

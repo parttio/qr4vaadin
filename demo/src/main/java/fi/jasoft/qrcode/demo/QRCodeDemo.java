@@ -16,15 +16,11 @@
 package fi.jasoft.qrcode.demo;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.List;
 
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.ObjectProperty;
-import com.vaadin.event.FieldEvents.TextChangeEvent;
-import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -34,19 +30,13 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.themes.Reindeer;
+import com.vaadin.ui.themes.ValoTheme;
 
 import fi.jasoft.qrcode.QRCode;
 
 public class QRCodeDemo extends UI {
 
-    private static final String COLOR_ITEM_PROPERTY = "color";
-
-    private static final String SIZE_ITEM_PROPERTY = "size";
-
     private QRCode code;
-
-    private ObjectProperty<String> message = new ObjectProperty<String>("");
 
     @Override
     protected void init(VaadinRequest request) {
@@ -56,14 +46,13 @@ public class QRCodeDemo extends UI {
         setContent(content);
 
         Label header = new Label("QR Code Generator");
-        header.setStyleName(Reindeer.LABEL_H2);
+        header.setStyleName(ValoTheme.LABEL_H2);
         content.addComponent(header);
 
         HorizontalSplitPanel root = new HorizontalSplitPanel();
         root.setSizeFull();
         root.setSplitPosition(50, Unit.PERCENTAGE);
         root.setLocked(true);
-        root.setStyleName(Reindeer.SPLITPANEL_SMALL);
 
         Panel panel = new Panel(root);
         panel.setSizeFull();
@@ -77,122 +66,89 @@ public class QRCodeDemo extends UI {
         first.addComponent(new HorizontalLayout(createPrimaryColorSelect(),
                 createSecondaryColorSelect(), createSizeSelect()));
 
+        code = new QRCode();
+        code.setWidth("100px");
+        code.setHeight("100px");     
+        
         final TextArea text = new TextArea("Text embedded in QR Code");
-        text.setInputPrompt("Type the message of the QR code here");
+        text.setPlaceholder("Type the message of the QR code here");
         text.setSizeFull();
-        text.setTextChangeEventMode(TextChangeEventMode.LAZY);
-        text.addTextChangeListener(new TextChangeListener() {
-
-            @Override
-            public void textChange(TextChangeEvent event) {
-                text.setValue(event.getText());
-
-            }
+        text.setValueChangeMode(ValueChangeMode.LAZY);
+        text.addValueChangeListener(e -> {
+        	code.setValue(e.getValue());
         });
-        text.setImmediate(true);
-        text.setPropertyDataSource(message);
+
         first.addComponent(text);
         first.setExpandRatio(text, 1);
 
         VerticalLayout vl = new VerticalLayout();
         vl.setSizeFull();
 
-        code = new QRCode();
-        code.setWidth("100px");
-        code.setHeight("100px");
-        code.setPropertyDataSource(message);
+       
         vl.addComponent(code);
         vl.setComponentAlignment(code, Alignment.MIDDLE_CENTER);
 
         root.setSecondComponent(vl);
     }
 
-    private NativeSelect createPrimaryColorSelect() {
-        final NativeSelect fgColor = new NativeSelect("Primary color");
-        fgColor.setImmediate(true);
-        fgColor.setNullSelectionAllowed(false);
+    private NativeSelect<Color> createPrimaryColorSelect() {
+    	List<Color> colors = Arrays.asList(Color.BLACK, Color.RED, 
+    			Color.GREEN, Color.BLUE, Color.YELLOW);
+    	
+        NativeSelect<Color> fgColor = new NativeSelect<Color>("Primary color");
         fgColor.setWidth("100px");
-        fgColor.addContainerProperty(COLOR_ITEM_PROPERTY, Color.class,
-                Color.BLACK);
-        fgColor.addItem("Black");
-        fgColor.addItem("Red").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(Color.RED);
-        fgColor.addItem("Green").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(Color.GREEN);
-        fgColor.addItem("Blue").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(Color.BLUE);
-        fgColor.addItem("Yellow").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(Color.YELLOW);
-        fgColor.select("Black");
-        fgColor.addListener(new Property.ValueChangeListener() {
-            public void valueChange(ValueChangeEvent event) {
-                Item item = fgColor.getItem(event.getProperty().getValue());
-                code.setPrimaryColor((Color) item.getItemProperty(
-                        COLOR_ITEM_PROPERTY).getValue());
-            }
+        fgColor.setItemCaptionGenerator( color -> {
+        	switch(colors.indexOf(color)){
+        	case 0: return "Black";
+        	case 1: return "Red";
+        	case 2: return "Green";
+        	case 3: return "Blue";
+        	case 4: return "Yellow";
+        	}
+        	return "Black";
         });
+        fgColor.setItems(colors);
+        fgColor.setValue(Color.BLACK);
+        fgColor.addValueChangeListener(e -> code.setPrimaryColor(e.getValue()));
         return fgColor;
     }
 
-    private NativeSelect createSecondaryColorSelect() {
-        final NativeSelect bgColor = new NativeSelect("Secondary color");
-        bgColor.setImmediate(true);
-        bgColor.setNullSelectionAllowed(false);
+    private NativeSelect<Color> createSecondaryColorSelect() {
+    	
+    	List<Color> colors = Arrays.asList(
+        		Color.WHITE, 
+        		new Color(255, 0, 0, 50), 
+        		new Color(0, 255, 0, 50),
+        		new Color(0, 0, 255, 50),
+        		new Color(255, 255, 0, 50));
+    	
+        final NativeSelect<Color> bgColor = new NativeSelect<Color>("Secondary color");
         bgColor.setWidth("100px");
-        bgColor.addContainerProperty(COLOR_ITEM_PROPERTY, Color.class,
-                Color.WHITE);
-        bgColor.addItem("White");
-        bgColor.addItem("Red").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(new Color(255, 0, 0, 50));
-        bgColor.addItem("Green").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(new Color(0, 255, 0, 50));
-        bgColor.addItem("Blue").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(new Color(0, 0, 255, 50));
-        bgColor.addItem("Yellow").getItemProperty(COLOR_ITEM_PROPERTY)
-                .setValue(new Color(255, 255, 0, 50));
-        bgColor.select("White");
-        bgColor.addListener(new Property.ValueChangeListener() {
-            public void valueChange(ValueChangeEvent event) {
-                Item item = bgColor.getItem(event.getProperty().getValue());
-                code.setSecondaryColor((Color) item.getItemProperty(
-                        COLOR_ITEM_PROPERTY).getValue());
-            }
+        bgColor.setItemCaptionGenerator( color -> {
+        	switch(colors.indexOf(color)){
+        	case 0: return "White";
+        	case 1: return "Red";
+        	case 2: return "Green";
+        	case 3: return "Blue";
+        	case 4: return "Yellow";
+        	}
+        	return "White";
         });
+        bgColor.setItems(colors);
+        bgColor.setValue(Color.WHITE);
+        bgColor.addValueChangeListener(e -> code.setSecondaryColor(e.getValue()));
         return bgColor;
     }
 
-    private NativeSelect createSizeSelect() {
-        final NativeSelect size = new NativeSelect("Size");
-        size.setImmediate(true);
-        size.setNullSelectionAllowed(false);
+    private NativeSelect<Integer> createSizeSelect() {
+        final NativeSelect<Integer> size = new NativeSelect<Integer>("Size");
         size.setWidth("100px");
-        size.addContainerProperty(SIZE_ITEM_PROPERTY, Integer.class, 50);
-
-        size.addItem("50x50");
-        size.addItem("100x100").getItemProperty(SIZE_ITEM_PROPERTY)
-                .setValue(100);
-        size.addItem("150x150").getItemProperty(SIZE_ITEM_PROPERTY)
-                .setValue(150);
-        size.addItem("300x300").getItemProperty(SIZE_ITEM_PROPERTY)
-                .setValue(300);
-        size.addItem("500x500").getItemProperty(SIZE_ITEM_PROPERTY)
-                .setValue(500);
-        size.addItem("750x750").getItemProperty(SIZE_ITEM_PROPERTY)
-                .setValue(750);
-        size.addItem("1000x1000").getItemProperty(SIZE_ITEM_PROPERTY)
-                .setValue(1000);
-
-        size.select("100x100");
-        size.addValueChangeListener(new Property.ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                Item item = size.getItem(event.getProperty().getValue());
-                Integer size = (Integer) item.getItemProperty(
-                        SIZE_ITEM_PROPERTY).getValue();
-                code.setWidth(size, Unit.PIXELS);
-                code.setHeight(size, Unit.PIXELS);
-            }
+        size.setItemCaptionGenerator(s -> s + "x" + s);
+        size.setItems(50,100,150,300,500,750,1000);
+        size.setValue(100);
+        size.addValueChangeListener(e -> {
+        	code.setWidth(e.getValue(), Unit.PIXELS);
+            code.setHeight(e.getValue(), Unit.PIXELS);
         });
         return size;
     }

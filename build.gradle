@@ -1,50 +1,15 @@
+plugins {
+    id 'fi.jasoft.plugin.vaadin' version '1.0.1'
+    id 'eclipse-wtp'
+}
+
 allprojects {
 	group = 'fi.jasoft'
 	version = project.hasProperty('BUILD_VERSION') ? getProperty('BUILD_VERSION') : 'development';	
 }
 
-subprojects{
-	apply from: 'http://plugins.jasoft.fi/vaadin.plugin'
-	apply plugin: 'eclipse'
-	sourceCompatibility=1.6
-	targetCompatibility=1.6
-	vaadin.version = '7.+'
+subprojects {
+	apply plugin: 'fi.jasoft.plugin.vaadin'
+	apply plugin: 'eclipse-wtp'
 }
 
-project(':addon'){
-
-	vaadin {
-		widgetset 'fi.jasoft.qrcode.QrcodeWidgetset'
-		manageWidgetset false
-		addon {
-			author 'John Ahlroos'
-			license 'Apache 2.0'
-			title 'QRCode'
-		}
-	}
-
-	// Include sources
-	jar {
-		baseName = 'qrcode'
-		sourceSets.main.java.srcDirs.each{
-			from it
-		}
-	}
-}
-
-project(':demo'){
-
-	dependencies {
-        	compile project(':addon')
-	}
-
-	vaadin {
-        	widgetset = 'fi.jasoft.qrcode.demo.DemoWidgetset'	
-	}
-
-	war {
-		dependsOn widgetset
-		exclude 'VAADIN/gwt-unitCache/**'
-		archiveName = 'QRCode7.war'
-	}
-}

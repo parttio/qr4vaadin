@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import com.vaadin.data.Property;
 import com.vaadin.server.StreamResource;
 import com.vaadin.ui.AbstractField;
 
@@ -59,13 +58,15 @@ public class QRCode extends AbstractField<String> implements SizeListener {
     private Color fgColor = Color.BLACK;
     private Color bgColor = Color.WHITE;
 
+    private String value;
+    
     private ErrorCorrectionLevel ecl = ErrorCorrectionLevel.L;
 
     /**
      * Constructs an empty <code>QRCode</code> with no caption.
      */
     public QRCode() {
-        setInternalValue("");
+        doSetValue("");
         registerRpc(this, SizeListener.class);
     }
 
@@ -77,32 +78,6 @@ public class QRCode extends AbstractField<String> implements SizeListener {
      */
     public QRCode(String caption) {
         this();
-        setCaption(caption);
-    }
-
-    /**
-     * Constructs a new <code>QRCode</code> that's bound to the specified
-     * <code>Property</code> and has no caption.
-     * 
-     * @param dataSource
-     *            the Property to be edited with this editor.
-     */
-    public QRCode(Property dataSource) {
-        this();
-        setPropertyDataSource(dataSource);
-    }
-
-    /**
-     * Constructs a new <code>QRCode</code> that's bound to the specified
-     * <code>Property</code> and has the given caption <code>String</code>.
-     * 
-     * @param caption
-     *            the caption <code>String</code> for the editor.
-     * @param dataSource
-     *            the Property to be edited with this editor.
-     */
-    public QRCode(String caption, Property dataSource) {
-        this(dataSource);
         setCaption(caption);
     }
 
@@ -119,39 +94,30 @@ public class QRCode extends AbstractField<String> implements SizeListener {
      *            the initial text content of the editor.
      */
     public QRCode(String caption, String value) {
-    	setInternalValue(value);
+    	doSetValue(value);
     	setCaption(caption); 
         registerRpc(this, SizeListener.class);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see com.vaadin.ui.AbstractField#setInternalValue(java.lang.Object)
-     */
-    @Override
-    protected void setInternalValue(String newValue) {
-    	super.setInternalValue(newValue);
-    	generateQRCode();
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see com.vaadin.ui.AbstractComponent#setWidth(float, com.vaadin.server.Sizeable.Unit)
-     */
     @Override
     public void setWidth(float width, Unit unit) {
     	super.setWidth(width, unit);
     	generateQRCode();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see com.vaadin.ui.AbstractComponent#setHeight(float, com.vaadin.server.Sizeable.Unit)
-     */
     @Override
     public void setHeight(float height, Unit unit) {
     	super.setHeight(height, unit);
     	generateQRCode();
+    }
+    
+    @Override
+    protected boolean setValue(String value, boolean userOriginated) {
+    	boolean result = super.setValue(value, userOriginated);
+    	if(result) {
+    		generateQRCode();
+    	}
+    	return result;
     }
     
     private void generateQRCode() {
@@ -374,23 +340,21 @@ public class QRCode extends AbstractField<String> implements SizeListener {
         generateQRCode();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.vaadin.ui.AbstractField#getType()
-     */
-	@Override
-	public Class<? extends String> getType() {		
-		return String.class;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see fi.jasoft.qrcode.client.ui.SizeListener#sizeChanged(int, int)
-	 */
 	@Override
 	public void sizeChanged(int width, int height) {
 		pixelWidth = width;
 		pixelHeight = height;
+		generateQRCode();
+	}
+
+	@Override
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	protected void doSetValue(String value) {
+		this.value = value;
 		generateQRCode();
 	}
 }

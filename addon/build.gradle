@@ -1,0 +1,24 @@
+vaadinCompile {
+    widgetset 'fi.jasoft.qrcode.QrcodeWidgetset'
+}
+
+vaadin {
+    version '8.0.0.beta1'
+    addon {
+        author 'John Ahlroos'
+        license 'Apache 2.0'
+        title 'QRCode'
+    }
+}
+
+vaadinCompile {
+	manageWidgetset false
+}
+
+jar {
+    baseName = 'qrcode'
+    sourceSets.main.java.srcDirs.each{
+        from it
+    }
+}
+
